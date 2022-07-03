@@ -24,49 +24,19 @@ function loadTrainingFile(path){
             output: l[4]
         };
     });
-    console.log('iniciando treinamento...');
+    console.log('iniciando treinamento...')
     let c = new Network({
         inputs:4,
         outputs:1,
         optimizer:'sgd',
-        loss:'absoluteDifference',
-        testingSize:0.2,
-        layers:4,
-        inputUnits:8,
-        hiddenUnits:128
+        loss:'meanSquaredError',
+        testingSize:0.5,
+        layers:1,
+        hiddenUnits:8,
+        outputActivation:'sigmoid'
     });
-   
-   
-    while(true){
-        /*
-        trainingData = [
-            {
-                input:0,
-                output:1
-            },
-            {
-                input:1,
-                output:0
-            },
-            {
-                input:0,
-                output:1
-            },
-            {
-                input:1,
-                output:0
-            }
-        ];*/
-      
-        await c.train(trainingData,100000,function(epoch,epochs,loss,acc){
-            console.clear();
-        //    if(epochs % 10 === 0){
-                console.log(epoch+'/'+epochs+' - loss:'+loss.toFixed(8),' acurracy:'+acc.toFixed(8)+'%');
-                console.log(c.predict([558602775,70368744177664000,9942244791,-6421869177]).join(',')); //0.027701058811065268
-                console.log(c.predict([558602775,70368744177664000,-3911415917,7824417485]).join(',')); //0.008446003773397203
-                console.log(c.predict([558602775,70368744177664000,-3322662403,7713845639]).join(',')); //0.019827566320744557
-          //  }
-        });
-      //  console.log('and 0: ',await c.predict([1]));
-    }
+    await c.load('./test_save');
+    await c.train(trainingData,100,function(epoch,epochs,loss,acc){
+        console.log(c.predict([145363311,500,1238425296,-5912340556]).join(',')); //0.5826214467245044
+    });
 })();

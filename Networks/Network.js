@@ -1,28 +1,11 @@
 const tf = require('@tensorflow/tfjs-node');
+const {reshape,incrementLearningRate,createModel} = require('./utils');
+const fs = require('fs');
+
 function Network(options){
     let self = this;
     initialize(self,options);
 }
-
-function incrementLearningRate(learningRate){
-    return 1/Math.pow(10,Math.log10(1/learningRate)+1);
-}
-
-function reshape(tensor,shape){
-    let length = shape.reduce(function(a,b){
-        return a*b;
-    },1);
-    let data = tensor.flatten().arraySync();
-    while(data.length < length){
-        data.push(0);
-    }
-    if(data.length > length){
-        data = data.slice(0,length);
-    }
-    return tf.tensor(data,shape);
-}
-
-
 
 function initialize(self,options){
     options = options || {};
@@ -58,7 +41,10 @@ function initialize(self,options){
         
         let testing_dataset = dataset.take(testing_size).shuffle(1024).batch(batchSize);
         let training_dataset = dataset.skip(testing_size).shuffle(1024).batch(batchSize);
-    
+        let loss;
+        let acc;
+
+        
         for(let i = 0; i < epochs;i++){
             let res = await self.model.fitDataset(training_dataset,{
                 validationData:testing_dataset,
@@ -66,18 +52,24 @@ function initialize(self,options){
                 epochs:1
             });
             let loss = res.history.loss[0];
-            let acc = res.history.acc[0];
-            if(isNaN(loss)){
+            let acc = res.history.acc[0]*100;
+            if(isNaN(loss) || loss === Infinity){
                 learningRate = incrementLearningRate(learningRate);
                 console.log('learning rate changed to '+learningRate);
-                model = createModel();
                 i--;
+                model = createModel(self.options);
                 continue;
             }
+            else if(loss === 0){
+                break;
+            }
+           
             if(callback){
-                callback(i+1,epochs,loss,acc*100);
+                callback(i+1,epochs,loss,acc);
             }
         }
+        
+        return {loss:loss,acc:acc,learningRate:learningRate};
     };
 
     let predict = function(input){
@@ -93,51 +85,34 @@ function initialize(self,options){
             .arraySync();
     };
 
-    let createModel = function(){
-        let model = tf.sequential();
-       
-        for(let i = 0; i < layers;i++){
-            let activation = hiddenActivation;
-            let units = hiddenUnits;
-            if(i === 0){
-                units = inputUnits;
-            }
-            if(i === layers-1){
-                activation = outputActivation;
-                units = outputs;
-            }
-            switch(type){
-                case 'lstm':
-                case 'gru': 
-                case 'simpleRNN':
-                    model.add(tf.layers[type]({
-                        inputShape: i === 0?self.inputShape:null,
-                        units:units,
-                        returnSequences:true,
-                        activation:activation
-                    }));
-                    break;
-                default:
-                    model.add(tf.layers.dense({
-                        inputShape: i === 0?self.inputShape:null,
-                        units:units,
-                        activation:activation
-                    }));
-            }
-        }
-     
-        model.compile({
-            loss:tf.losses[loss],
-            optimizer:tf.train[optimizer](learningRate),
-            metrics:['acc']
-        });
-        return model;
+    let save = async function(dir){
+        let configPath = dir+'/config.json';
+        await self.model.save('file://'+dir);
+        fs.writeFileSync(configPath,JSON.stringify(self.options,null,4));
+    };
+
+    let load = async function(dir){
+        let configPath = dir+'/config.json';
+        model = await tf.loadLayersModel('file://'+dir+'/model.json');
+        let options = JSON.parse(fs.readFileSync(configPath,{encoding:'utf-8'}));
+        inputs = options.inputs;
+        outputs = options.outputs;
+        layers = options.layers;
+        hiddenActivation = options.hiddenActivation;
+        hiddenUnits = options.hiddenUnits;
+        inputUnits = options.inputUnits;
+        outputActivation = options.outputActivation;
+        type = options.type;
+        inputShape = options.inputShape;
+        loss = options.loss;
+        optimizer = options.optimizer;
+        learningRate = options.learningRate;
     };
 
     Object.defineProperty(self,'model',{
         get:function(){
             if(model === null){
-                model = createModel();
+                model = createModel(self.options);
             }
             return model;
         }
@@ -246,6 +221,37 @@ function initialize(self,options){
                     return [1,outputs]; 
             }
         }
+    });
+
+    Object.defineProperty(self,'options',{
+        get:function(){
+            return {
+                inputs: inputs,
+                outputs: outputs,
+                layers: layers,
+                hiddenActivation: hiddenActivation,
+                hiddenUnits: hiddenUnits,
+                inputUnits: inputUnits,
+                outputActivation: outputActivation,
+                type: type,
+                inputShape: self.inputShape,
+                loss: loss,
+                optimizer: optimizer,
+                learningRate: learningRate
+            };
+        }
+    });
+
+    Object.defineProperty(self,'save',{
+        get:function(){
+            return save;
+        } 
+    });
+
+    Object.defineProperty(self,'load',{
+        get:function(){
+            return load;
+        } 
     });
 }
 
