@@ -43,7 +43,7 @@ function loadTrainingFile(path){
         batchSize:512
     });
     await c.load(modelDir);
-    await c.train(trainingData,100,async function(epoch,epochs,loss,acc){
+    await c.train(trainingData,10,async function(epoch,epochs,loss,acc){
         console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         console.log(c.predict([145363311,500,1238425296,-5912340556]).join(',')); //0.5826214467245044
         await c.save(modelDir);
