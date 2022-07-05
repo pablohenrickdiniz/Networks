@@ -39,7 +39,8 @@ function loadTrainingFile(path){
         testingSize:0.5,
         layers:1,
         hiddenUnits:8,
-        outputActivation:'sigmoid'
+        outputActivation:'sigmoid',
+        batchSize:512
     });
     await c.load(modelDir);
     await c.train(trainingData,100,function(epoch,epochs,loss,acc){
