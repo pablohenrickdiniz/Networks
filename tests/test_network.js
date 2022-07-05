@@ -41,7 +41,7 @@ function loadTrainingFile(path){
         hiddenUnits:8,
         outputActivation:'sigmoid'
     });
-    //await c.load('./test_save');
+    await c.load(modelDir);
     await c.train(trainingData,100,function(epoch,epochs,loss,acc){
         console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         console.log(c.predict([145363311,500,1238425296,-5912340556]).join(',')); //0.5826214467245044
