@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@tensorflow/tfjs-node": "^3.18.0"
+    "@tensorflow/tfjs-node-gpu": "^3.18.0"
   },
   "devDependencies": {
     "jest": "^28.1.2"
