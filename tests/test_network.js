@@ -11,6 +11,12 @@ function loadTrainingFile(path){
 (async function(){
     const Network = require('../Networks/Network');
     const trainingDir = '/content/drive/MyDrive/ia-projects/perlin-noise/training';
+    const modelDir = '/content/drive/MyDrive/ia-projects/perlin-noise/model';
+
+    if(!fs.existsSync(modelDir)){
+        fs.mkdirSync(modelDir,{recursive:true});
+    }
+
     let files = fs.readdirSync(trainingDir);
     let trainingData = [];
     for(let i = 0; i < files.length;i++){
@@ -40,5 +46,5 @@ function loadTrainingFile(path){
         console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         console.log(c.predict([145363311,500,1238425296,-5912340556]).join(',')); //0.5826214467245044
     });
-    await c.save('./test_save');
+    await c.save(modelDir);
 })();
