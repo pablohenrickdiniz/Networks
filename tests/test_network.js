@@ -5,7 +5,7 @@ function loadTrainingFile(path){
     contents = contents.trim().split("\n").map(function(l){
         return l.split(',').map((v) => Number(v));
     });
-    return contents.slice(0,1000);
+    return contents.slice(0,10000);
 }
 
 (async function(){
@@ -45,6 +45,7 @@ function loadTrainingFile(path){
     await c.train(trainingData,100,function(epoch,epochs,loss,acc){
         console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         console.log(c.predict([145363311,500,1238425296,-5912340556]).join(',')); //0.5826214467245044
+        await c.save(modelDir);
     });
     await c.save(modelDir);
 })();
