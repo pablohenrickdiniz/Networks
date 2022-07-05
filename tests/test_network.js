@@ -5,7 +5,7 @@ function loadTrainingFile(path){
     contents = contents.trim().split("\n").map(function(l){
         return l.split(',').map((v) => Number(v));
     });
-    return contents.slice(0,100);
+    return contents.slice(0,1000);
 }
 
 (async function(){
