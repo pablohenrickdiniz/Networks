@@ -45,7 +45,6 @@ function initialize(self,options){
         let loss;
         let acc;
 
-        
         for(let i = 0; i < epochs;i++){
             let res = await self.model.fitDataset(training_dataset,{
                 validationData:testing_dataset,

@@ -30,12 +30,12 @@ function loadTrainingFile(path){
         outputs:1,
         optimizer:'sgd',
         loss:'meanSquaredError',
-        testingSize:0.9,
+        testingSize:0.5,
         layers:1,
         hiddenUnits:8,
         outputActivation:'sigmoid'
     });
-    await c.load('./test_save');
+    //await c.load('./test_save');
     await c.train(trainingData,10000,function(epoch,epochs,loss,acc){
         console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         console.log(c.predict([145363311,500,1238425296,-5912340556]).join(',')); //0.5826214467245044
