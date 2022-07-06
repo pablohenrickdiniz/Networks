@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "@tensorflow/tfjs-node-gpu": "^3.18.0"
+    "@tensorflow/tfjs-node-gpu": "^3.18.0",
+    "noisejs": "^2.1.0",
+    "string-hash": "^1.1.3"
   },
   "devDependencies": {
     "jest": "^28.1.2"
