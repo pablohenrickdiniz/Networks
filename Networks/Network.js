@@ -92,27 +92,36 @@ function initialize(self,options){
     };
 
     let load = async function(dir){
-        let configPath = dir+'/config.json';
-        model = await tf.loadLayersModel('file://'+dir+'/model.json');
-        let options = JSON.parse(fs.readFileSync(configPath,{encoding:'utf-8'}));
-        inputs = options.inputs;
-        outputs = options.outputs;
-        layers = options.layers;
-        hiddenActivation = options.hiddenActivation;
-        hiddenUnits = options.hiddenUnits;
-        inputUnits = options.inputUnits;
-        outputActivation = options.outputActivation;
-        type = options.type;
-        inputShape = options.inputShape;
-        loss = options.loss;
-        optimizer = options.optimizer;
-        learningRate = options.learningRate;
+        try{
+            let configPath = dir+'/config.json';
+            model = await tf.loadLayersModel('file://'+dir+'/model.json');
+            let options = JSON.parse(fs.readFileSync(configPath,{encoding:'utf-8'}));
+            inputs = options.inputs;
+            outputs = options.outputs;
+            layers = options.layers;
+            hiddenActivation = options.hiddenActivation;
+            hiddenUnits = options.hiddenUnits;
+            inputUnits = options.inputUnits;
+            outputActivation = options.outputActivation;
+            type = options.type;
+            inputShape = options.inputShape;
+            loss = options.loss;
+            optimizer = options.optimizer;
+            learningRate = options.learningRate;
+    
+            model.compile({
+                loss:tf.losses[loss],
+                optimizer:tf.train[optimizer](learningRate),
+                metrics:['acc']
+            });
 
-        model.compile({
-            loss:tf.losses[loss],
-            optimizer:tf.train[optimizer](learningRate),
-            metrics:['acc']
-        });
+            return true;
+        }
+        catch(e){
+
+        }
+
+        return false;
     };
 
     Object.defineProperty(self,'model',{
