@@ -3,7 +3,7 @@ const fs = require('fs');
 
 (async function(){
     const Network = require('../../Networks/Network');
-    const modelDir = './model';
+    const modelDir = '/content/drive/MyDrive/ia-projects/perlin-noise/training';
 
     if(!fs.existsSync(modelDir)){
         fs.mkdirSync(modelDir,{recursive:true});
