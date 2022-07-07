@@ -1,6 +1,5 @@
 const generateTrainingData = require('./generate-training-data');
 const fs = require('fs');
-const stringHash = require('string-hash');
 
 (async function(){
     const Network = require('../../Networks/Network');
@@ -18,11 +17,9 @@ const stringHash = require('string-hash');
         outputActivation:'sigmoid',
         batchSize:batchSize
     };
-
     let c = new Network(config);
 
-    //const modelDir = '/content/drive/MyDrive/ia-projects/perlin-noise/model';
-    const modelDir = './model';
+    const modelDir = '/app/models/perlin-noise';
 
     if(!fs.existsSync(modelDir)){
         fs.mkdirSync(modelDir,{recursive:true});
@@ -35,9 +32,5 @@ const stringHash = require('string-hash');
     await c.train(trainingData,1000,async function(epoch,epochs,loss,acc){
         console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         await c.save(modelDir);
-        if(fs.existsSync('./stop.lock')){
-            fs.unlinkSync('./stop.lock');
-            process.exit();
-        }
     });
 })();

@@ -7,7 +7,7 @@ services:
     mem_limit: 256MB
     cpus: 0.1
     volumes:
-      - ./models/perlin-noise:/app/examples/perlin-noise/model
+      - ./models:/app/models
   server:
     build:
       context: .
@@ -17,4 +17,4 @@ services:
     ports:
       - 8000:3000
     volumes:
-      - ./models/perlin-noise:/app/examples/perlin-noise/model
+      - ./models:/app/models
