@@ -1,0 +1,8 @@
+version: '3.3'
+services:
+  train_perlin:
+    build:
+      context: .
+      target: perlin
+    mem_limit: 128MB
+    cpus: 0.1
