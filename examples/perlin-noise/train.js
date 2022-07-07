@@ -3,7 +3,7 @@ const fs = require('fs');
 
 (async function(){
     const Network = require('../../Networks/Network');
-    const modelDir = '/content/drive/MyDrive/ia-projects/perlin-noise/training';
+    const modelDir = './model';
 
     if(!fs.existsSync(modelDir)){
         fs.mkdirSync(modelDir,{recursive:true});
@@ -26,14 +26,14 @@ const fs = require('fs');
     console.log('gerando dados de treinamento...');
     let trainingData = generateTrainingData(batchSize*1000);
     while(true){
-        await c.train(trainingData,100,async function(epoch,epochs,loss,acc){
+        await c.train(trainingData,10,async function(epoch,epochs,loss,acc){
             console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
             console.log(c.predict([145363311,500,1238425296,-5912340556]).join(',')); //0.5826214467245044
             await c.save(modelDir);
+            if(fs.existsSync('./stop.lock')){
+                fs.unlinkSync('./stop.lock');
+                process.exit();
+            }
         });
-        if(fs.existsSync('./stop.lock')){
-            fs.unlinkSync('./stop.lock');
-            process.exit();
-        }
     }
 })();
