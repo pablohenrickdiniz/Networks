@@ -4,5 +4,17 @@ services:
     build:
       context: .
       target: perlin
+    mem_limit: 256MB
+    cpus: 0.1
+    volumes:
+      - ./models/perlin-noise:/app/examples/perlin-noise/model
+  server:
+    build:
+      context: .
+      target: server
     mem_limit: 128MB
     cpus: 0.1
+    ports:
+      - 8000:3000
+    volumes:
+      - ./models/perlin-noise:/app/examples/perlin-noise/model

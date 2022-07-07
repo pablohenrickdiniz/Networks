@@ -9,3 +9,8 @@ ENTRYPOINT [ "/app/run.sh" ]
 FROM core as perlin
 RUN echo "#!/bin/sh\nnode /app/examples/perlin-noise/train.js" > /app/run.sh
 RUN chmod +x /app/run.sh
+
+FROM core as server
+COPY server.js /app/server.js
+RUN echo "#!/bin/sh\nnode /app/server.js" > /app/run.sh
+RUN chmod +x /app/run.sh
