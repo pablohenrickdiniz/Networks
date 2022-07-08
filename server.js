@@ -13,10 +13,6 @@ app.get('/perlin-noise/index.js',function(req,res){
     });
 });
 
-app.get('/perlin-noise/model/model.json',function(req,res){
-    res.sendFile('model.json',{
-        root: '/app/models/perlin-noise'
-    });
-});
+app.use('/perlin-noise/model/', express.static('/app/models/perlin-noise'));
 
 app.listen(3000);
