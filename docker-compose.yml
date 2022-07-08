@@ -1,6 +1,6 @@
 version: '3.3'
 services:
-  train_1:
+  train_2:
     build:
       context: .
       target: perlin
@@ -8,7 +8,7 @@ services:
     cpus: 0.1
     volumes:
       - ./models:/app/models
-  server_1:
+  server_2:
     build:
       context: .
       target: server
