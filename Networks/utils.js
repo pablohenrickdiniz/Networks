@@ -13,15 +13,11 @@ function learningRateFrom(e){
 }
 
 function createModel(options){
-    options.inputs = options.inputs || 1;
-    options.outputs = options.outputs || 1;
-    options.layers = options.layers || 1;
+    options.layers = options.layers || [];
     options.hiddenActivation = options.hiddenActivation || 'linear';
     options.hiddenUnits = options.hiddenUnits || options.inputs;
     options.inputUnits = options.inputUnits || options.hiddenUnits;
     options.outputActivation = options.outputActivation || 'linear';
-    options.type = options.type || 'generic';
-    options.inputShape = options.inputShape || [options.inputs];
     options.loss = options.loss || 'meanSquaredError';
     options.optimizer = options.optimizer || 'sgd';
     options.learningRate = options.learningRate || 0.01;
@@ -29,10 +25,11 @@ function createModel(options){
     let model = tf.sequential();
 
     model.add(tf.layers.layerNormalization({
-        inputShape:options.inputShape
+        inputShape: options.inputShape
     }));
    
-    for(let i = 0; i < options.layers;i++){
+    for(let i = 0; i < options.layers.length;i++){
+        let type = options.layers[i];
         let activation = options.hiddenActivation;
         let units =  options.hiddenUnits;
         if(i === 0){
@@ -40,26 +37,23 @@ function createModel(options){
         }
         if(i === options.layers-1){
             activation =  options.outputActivation;
-            units =  options.outputs;
+            units = shapeProduct(options.outputShape);
         }
-        switch(options.type){
+        switch(type){
             case 'lstm':
-            case 'gru': 
+            case 'gru':
             case 'simpleRNN':
-                model.add(tf.layers[options.type]({
-                    inputShape: i === 0?options.inputShape:null,
-                    units:units,
-                    returnSequences:true,
-                    activation:activation
+                model.add(tf.layers.reshape({
+                    targetShape:[1,1]
                 }));
                 break;
-            default:
-                model.add(tf.layers.dense({
-                    inputShape: i === 0?options.inputShape:null,
-                    units:units,
-                    activation:activation
-                }));
         }
+
+        model.add(tf.layers[type]({
+            inputShape: i === 0?options.inputShape:null,
+            units:units,
+            activation:activation
+        }));
     }
  
     model.compile({
@@ -71,9 +65,7 @@ function createModel(options){
 };
 
 function reshape(tensor,shape){
-    let length = shape.reduce(function(a,b){
-        return a*b;
-    },1);
+    let length = shapeProduct(shape);
     let data = tensor.flatten().arraySync();
     while(data.length < length){
         data.push(0);
@@ -82,6 +74,12 @@ function reshape(tensor,shape){
         data = data.slice(0,length);
     }
     return tf.tensor(data,shape);
+}
+
+function shapeProduct(shape){
+    return shape.reduce(function(p,c){
+        return p*c;
+    },1);
 }
 
 async function findBestLearningRate(options,trainingDataset,testingDataset){
@@ -98,6 +96,7 @@ async function findBestLearningRate(options,trainingDataset,testingDataset){
             verbose:0,
             epochs:5
         })).history.loss[0];
+        
         if(isNaN(loss) || loss === Infinity){
            minE = e+1;
         }
@@ -113,5 +112,6 @@ async function findBestLearningRate(options,trainingDataset,testingDataset){
 module.exports = {
     reshape: reshape,
     incrementLearningRate: incrementLearningRate,
-    createModel: createModel
+    createModel: createModel,
+    shapeProduct: shapeProduct
 };

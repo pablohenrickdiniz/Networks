@@ -1,5 +1,5 @@
 const tf = require('@tensorflow/tfjs-node-gpu');
-const {reshape,incrementLearningRate,createModel} = require('./utils');
+const {reshape,incrementLearningRate,createModel,shapeProduct} = require('./utils');
 const fs = require('fs');
 
 function Network(options){
@@ -9,16 +9,16 @@ function Network(options){
 
 function initialize(self,options){
     options = options || {};
-    let inputs = options.inputs || 1;
-    let outputs = options.outputs || 1;
-    let layers = options.layers || 1;
-    let hiddenUnits = options.hiddenUnits || inputs;
-    let inputUnits = options.inputUnits || hiddenUnits;
+    let layers = options.layers || ['dense'];
     let hiddenActivation = options.hiddenActivation || 'linear';
     let outputActivation = options.outputActivation || 'linear';
     let testingSize = options.testingSize || 0.5;
     let type = options.type || 'generic';
     let batchSize = options.batchSize || 64;
+    let inputShape = options.inputShape;
+    let outputShape = options.outputShape;
+    let hiddenUnits = options.hiddenUnits || shapeProduct(inputShape);
+    let inputUnits = options.inputUnits || hiddenUnits;
 
     let loss = options.loss || 'meanSquaredError';
     let optimizer = options.optimizer || 'sgd';
@@ -27,8 +27,8 @@ function initialize(self,options){
     
     let train = async function(data,epochs,callback){
         let dataset = tf.data.array(data).map(function(d){
-            let input = reshape(tf.tensor(d.input),self.inputShape);
-            let output = reshape(tf.tensor(d.output),self.outputShape);
+            let input = reshape(tf.tensor(d.input),inputShape);
+            let output = reshape(tf.tensor(d.output),outputShape);
             return {
                 xs:input,
                 ys:output
@@ -78,7 +78,7 @@ function initialize(self,options){
             .predict(
                 reshape(
                     tf.tensor(input),
-                    self.tensorInputShape
+                    inputShape
                 )
             )
             .flatten()
@@ -96,8 +96,6 @@ function initialize(self,options){
             let configPath = dir+'/config.json';
             model = await tf.loadLayersModel('file://'+dir+'/model.json');
             let options = JSON.parse(fs.readFileSync(configPath,{encoding:'utf-8'}));
-            inputs = options.inputs;
-            outputs = options.outputs;
             layers = options.layers;
             hiddenActivation = options.hiddenActivation;
             hiddenUnits = options.hiddenUnits;
@@ -105,6 +103,7 @@ function initialize(self,options){
             outputActivation = options.outputActivation;
             type = options.type;
             inputShape = options.inputShape;
+            outputShape = options.outputShape;
             loss = options.loss;
             optimizer = options.optimizer;
             learningRate = options.learningRate;
@@ -143,27 +142,9 @@ function initialize(self,options){
         }
     });
 
-    Object.defineProperty(self,'inputs',{
-        get:function(){
-            return inputs;
-        }
-    });
-
-    Object.defineProperty(self,'outputs',{
-        get:function(){
-            return outputs;
-        }
-    });
-
     Object.defineProperty(self,'layers',{
         get:function(){
             return layers;
-        }
-    });
-
-    Object.defineProperty(self,'varsLength',{
-        get:function(){
-            return Math.max(inputs,outputs);
         }
     });
 
@@ -184,72 +165,18 @@ function initialize(self,options){
             return type;
         }
     });
-
-
-    Object.defineProperty(self,'inputShape',{
-        get:function(){
-            switch(type){
-                case 'lstm':
-                case 'gru':
-                case 'simpleRNN':   
-                    return [inputs,1];
-                default:
-                    return [inputs]; 
-            }
-        }
-    });
-
-    Object.defineProperty(self,'outputShape',{
-        get:function(){
-            switch(type){
-                case 'lstm':
-                case 'gru':
-                case 'simpleRNN':
-                    return [outputs,1];
-                default:
-                    return [outputs]; 
-            }
-        }
-    });
-
-    Object.defineProperty(self,'tensorInputShape',{
-        get:function(){
-            switch(type){
-                case 'lstm':
-                case 'gru':
-                case 'simpleRNN':        
-                    return [1,self.varsLength,1];
-                default:
-                    return [1,inputs]; 
-            }
-        }
-    });
-
-    Object.defineProperty(self,'tensorOutputShape',{
-        get:function(){
-            switch(type){
-                case 'lstm':
-                case 'gru':
-                case 'simpleRNN':       
-                    return [1,self.varsLength,1];
-                default:
-                    return [1,outputs]; 
-            }
-        }
-    });
-
+  
     Object.defineProperty(self,'options',{
         get:function(){
             return {
-                inputs: inputs,
-                outputs: outputs,
+                inputShape: inputShape,
+                outputShape: outputShape,
                 layers: layers,
                 hiddenActivation: hiddenActivation,
                 hiddenUnits: hiddenUnits,
                 inputUnits: inputUnits,
                 outputActivation: outputActivation,
                 type: type,
-                inputShape: self.inputShape,
                 loss: loss,
                 optimizer: optimizer,
                 learningRate: learningRate
