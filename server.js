@@ -14,7 +14,7 @@ app.get('/perlin-noise/index.js',function(req,res){
 });
 
 app.get('/perlin-noise/model/model.json',function(req,res){
-    res.sendFile('model.js',{
+    res.sendFile('model.json',{
         root: '/app/models/'
     });
 });
