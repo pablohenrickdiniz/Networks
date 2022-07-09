@@ -6,17 +6,15 @@ services:
     build:
       context: .
       target: perlin
-    mem_limit: 256MB
     volumes:
       - models:/app/models
       - ./outputs:/app/outputs
     environment:
-        CONFIG: 404951133
+      CONFIG: 404951133
   train_2:
     build:
       context: .
       target: perlin
-    mem_limit: 256MB
     volumes:
       - models:/app/models
       - ./outputs:/app/outputs
@@ -26,7 +24,6 @@ services:
     build:
       context: .
       target: perlin
-    mem_limit: 256MB
     volumes:
       - models:/app/models
       - ./outputs:/app/outputs
@@ -36,7 +33,6 @@ services:
     build:
       context: .
       target: perlin
-    mem_limit: 256MB
     volumes:
       - models:/app/models
       - ./outputs:/app/outputs
@@ -46,7 +42,6 @@ services:
     build:
       context: .
       target: perlin
-    mem_limit: 256MB
     volumes:
       - models:/app/models
       - ./outputs:/app/outputs

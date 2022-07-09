@@ -16,12 +16,12 @@ module.exports = async function(model,options){
         }
     }
     let output = tf.tensor(model.predict(input)).flatten().reshape([height,width]).arraySync();
+    input = [];
     for(let sy = 0; sy < output.length; sy++){
         for(let sx = 0; sx < output[sy].length;sx++){
             let level = Math.min(Math.round(Math.abs(output[sy][sx])*255),255);
             output[sy][sx] = [level,level,level];
         }
     }
-    output = tf.tensor(output);
-    return await tf.node.encodePng(output);
+    return await tf.node.encodePng(tf.tensor(output));
 };
