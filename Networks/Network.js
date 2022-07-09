@@ -13,8 +13,8 @@ function initialize(self,options){
     let testingSize = options.testingSize || 0.5;
     let type = options.type || 'generic';
     let batchSize = options.batchSize || 64;
-    let inputShape = options.inputShape;
-    let outputShape = options.outputShape;
+    let inputShape = options.inputShape || [1];
+    let outputShape = options.outputShape || [1];
     let normalize = options.normalize || false;
 
     let loss = options.loss || 'meanSquaredError';

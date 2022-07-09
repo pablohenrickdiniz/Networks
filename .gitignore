@@ -1,2 +1,4 @@
 node_modules
 examples/perlin-noise/model
+examples/perlin-noise/configs
+outputs
