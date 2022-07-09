@@ -14,47 +14,57 @@ function learningRateFrom(e){
 
 function createModel(options){
     options.layers = options.layers || [];
-    options.hiddenActivation = options.hiddenActivation || 'linear';
-    options.hiddenUnits = options.hiddenUnits || options.inputs;
-    options.inputUnits = options.inputUnits || options.hiddenUnits;
-    options.outputActivation = options.outputActivation || 'linear';
     options.loss = options.loss || 'meanSquaredError';
     options.optimizer = options.optimizer || 'sgd';
     options.learningRate = options.learningRate || 0.01;
+    options.normalize = options.normalize || false;
 
     let model = tf.sequential();
 
-    model.add(tf.layers.layerNormalization({
-        inputShape: options.inputShape
-    }));
-   
+
+    let inputShape = options.inputShape;
+    let first = true;
+
+    if(options.normalize){
+        model.add(tf.layers.layerNormalization({
+            inputShape: inputShape
+        }));
+        first = false;
+    }
+
     for(let i = 0; i < options.layers.length;i++){
         let type = options.layers[i];
         let activation = options.hiddenActivation;
-        let units =  options.hiddenUnits;
-        if(i === 0){
-            units =  options.inputUnits;
-        }
-        if(i === options.layers-1){
-            activation =  options.outputActivation;
+        let units = shapeProduct(options.inputShape);
+
+        if(i === options.layers.length -1){
             units = shapeProduct(options.outputShape);
         }
+
         switch(type){
-            case 'lstm':
             case 'gru':
+            case 'lstm':
             case 'simpleRNN':
+                let targetShape = [...inputShape];
+                targetShape.push(1);
                 model.add(tf.layers.reshape({
-                    targetShape:[1,1]
+                    inputShape: first?inputShape:null,
+                    targetShape: targetShape
                 }));
+                first = false;
                 break;
         }
 
-        model.add(tf.layers[type]({
-            inputShape: i === 0?options.inputShape:null,
+        let opt = {
+            inputShape: first?inputShape:null,
             units:units,
             activation:activation
-        }));
+        };
+        
+        model.add(tf.layers[type](opt));
+        first = false;
     }
+    
  
     model.compile({
         loss:tf.losses[options.loss],

@@ -19,6 +19,7 @@ function initialize(self,options){
     let outputShape = options.outputShape;
     let hiddenUnits = options.hiddenUnits || shapeProduct(inputShape);
     let inputUnits = options.inputUnits || hiddenUnits;
+    let normalize = options.normalize || false;
 
     let loss = options.loss || 'meanSquaredError';
     let optimizer = options.optimizer || 'sgd';
@@ -27,8 +28,9 @@ function initialize(self,options){
     
     let train = async function(data,epochs,callback){
         let dataset = tf.data.array(data).map(function(d){
-            let input = reshape(tf.tensor(d.input),inputShape);
-            let output = reshape(tf.tensor(d.output),outputShape);
+            let input = reshape(tf.tensor(d.input),self.inputTensorShape);
+            let output = reshape(tf.tensor(d.output),self.outputTensorShape);
+            
             return {
                 xs:input,
                 ys:output
@@ -42,6 +44,7 @@ function initialize(self,options){
         
         let testing_dataset = dataset.take(testing_size).batch(batchSize);
         let training_dataset = dataset.skip(testing_size).batch(batchSize);
+
         let loss;
         let acc;
 
@@ -75,12 +78,7 @@ function initialize(self,options){
     let predict = function(input){
         return self
             .model
-            .predict(
-                reshape(
-                    tf.tensor(input),
-                    inputShape
-                )
-            )
+            .predict(tf.tensor(input))
             .flatten()
             .arraySync();
     };
@@ -165,6 +163,18 @@ function initialize(self,options){
             return type;
         }
     });
+
+    Object.defineProperty(self,'inputTensorShape',{
+        get:function(){
+            return inputShape;
+        }
+    });
+
+    Object.defineProperty(self,'outputTensorShape',{
+        get:function(){
+            return outputShape;
+        }
+    });
   
     Object.defineProperty(self,'options',{
         get:function(){
@@ -179,7 +189,8 @@ function initialize(self,options){
                 type: type,
                 loss: loss,
                 optimizer: optimizer,
-                learningRate: learningRate
+                learningRate: learningRate,
+                normalize: normalize
             };
         }
     });
