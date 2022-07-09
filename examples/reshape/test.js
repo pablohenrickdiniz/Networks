@@ -3,11 +3,8 @@ const Network = require('../../Networks/Network');
 
 let network = new Network({
     inputShape:[3],
-    outputShape:[1],
-    layers:['lstm'],
-    normalize: false
+    outputShape:[1]
 });
-
 
 let trainingData = [];
 for(let i = 0; i < 100;i++){

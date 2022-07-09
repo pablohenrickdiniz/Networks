@@ -35,7 +35,7 @@ function createModel(options){
     for(let i = 0; i < options.layers.length;i++){
         let type = options.layers[i];
         let activation = options.hiddenActivation;
-        let units = shapeProduct(options.inputShape);
+        let units = shapeProduct(options.inputShape)*2;
 
         if(i === options.layers.length -1){
             units = shapeProduct(options.outputShape);
