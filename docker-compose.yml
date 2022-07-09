@@ -1,14 +1,16 @@
 version: '3.3'
+volumes:
+  models:
 services:
-  train_4:
+  train:
     build:
       context: .
       target: perlin
     mem_limit: 256MB
     cpus: 0.1
     volumes:
-      - ./models:/app/models
-  server_4:
+      - models:/app/models
+  server:
     build:
       context: .
       target: server
@@ -17,4 +19,4 @@ services:
     ports:
       - 8000:3000
     volumes:
-      - ./models:/app/models
+      - models:/app/models

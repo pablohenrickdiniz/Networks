@@ -1,5 +1,5 @@
 const tf = require('@tensorflow/tfjs-node-gpu');
-const {reshape,incrementLearningRate,createModel,shapeProduct} = require('./utils');
+const {reshape,incrementLearningRate,createModel} = require('./utils');
 const fs = require('fs');
 
 function Network(options){
@@ -10,15 +10,11 @@ function Network(options){
 function initialize(self,options){
     options = options || {};
     let layers = options.layers || ['dense'];
-    let hiddenActivation = options.hiddenActivation || 'linear';
-    let outputActivation = options.outputActivation || 'linear';
     let testingSize = options.testingSize || 0.5;
     let type = options.type || 'generic';
     let batchSize = options.batchSize || 64;
     let inputShape = options.inputShape;
     let outputShape = options.outputShape;
-    let hiddenUnits = options.hiddenUnits || shapeProduct(inputShape);
-    let inputUnits = options.inputUnits || hiddenUnits;
     let normalize = options.normalize || false;
 
     let loss = options.loss || 'meanSquaredError';
@@ -95,10 +91,6 @@ function initialize(self,options){
             model = await tf.loadLayersModel('file://'+dir+'/model.json');
             let options = JSON.parse(fs.readFileSync(configPath,{encoding:'utf-8'}));
             layers = options.layers;
-            hiddenActivation = options.hiddenActivation;
-            hiddenUnits = options.hiddenUnits;
-            inputUnits = options.inputUnits;
-            outputActivation = options.outputActivation;
             type = options.type;
             inputShape = options.inputShape;
             outputShape = options.outputShape;
@@ -107,9 +99,9 @@ function initialize(self,options){
             learningRate = options.learningRate;
     
             model.compile({
-                loss:tf.losses[loss],
-                optimizer:tf.train[optimizer](learningRate),
-                metrics:['acc']
+                loss: tf.losses[loss],
+                optimizer: tf.train[optimizer](learningRate),
+                metrics: ['acc']
             });
 
             return true;
@@ -182,10 +174,6 @@ function initialize(self,options){
                 inputShape: inputShape,
                 outputShape: outputShape,
                 layers: layers,
-                hiddenActivation: hiddenActivation,
-                hiddenUnits: hiddenUnits,
-                inputUnits: inputUnits,
-                outputActivation: outputActivation,
                 type: type,
                 loss: loss,
                 optimizer: optimizer,

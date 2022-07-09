@@ -17,28 +17,32 @@ function createModel(options){
     options.loss = options.loss || 'meanSquaredError';
     options.optimizer = options.optimizer || 'sgd';
     options.learningRate = options.learningRate || 0.01;
-    options.normalize = options.normalize || false;
 
-    let model = tf.sequential();
-
-
-    let inputShape = options.inputShape;
     let first = true;
-
-    if(options.normalize){
-        model.add(tf.layers.layerNormalization({
-            inputShape: inputShape
-        }));
-        first = false;
-    }
-
+    let model = tf.sequential();
+    let inputShape = options.inputShape;
+  
     for(let i = 0; i < options.layers.length;i++){
-        let type = options.layers[i];
-        let activation = options.hiddenActivation;
+        let layer = options.layers[i];
+        let type = 'dense';
+        let activation = 'linear';
         let units = shapeProduct(options.inputShape)*2;
+       
+        if(layer.constructor === {}.constructor){
+            if(typeof layer.type === 'string'){
+                type = layer.type;
+            }
 
-        if(i === options.layers.length -1){
-            units = shapeProduct(options.outputShape);
+            if(typeof layer.activation === 'string'){
+                activation = layer.activation;
+            }
+
+            if(!isNaN(layer.units)){
+                units = layer.units;
+            }
+        }
+        else if(typeof layer === 'string'){
+            type = layer;
         }
 
         switch(type){
@@ -53,6 +57,10 @@ function createModel(options){
                 }));
                 first = false;
                 break;
+        }
+
+        if(i === options.layers.length - 1){
+            units = shapeProduct(options.outputShape);
         }
 
         let opt = {
