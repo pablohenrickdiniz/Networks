@@ -75,7 +75,6 @@ function initialize(self,options){
         return self
             .model
             .predict(tf.tensor(input))
-            .flatten()
             .arraySync();
     };
 

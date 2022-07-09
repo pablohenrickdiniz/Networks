@@ -1,4 +1,5 @@
 const generateTrainingData = require('./generate-training-data');
+const generateImage = require('./generate-image');
 const fs = require('fs');
 const stringHash = require('string-hash');
 
@@ -18,12 +19,13 @@ const stringHash = require('string-hash');
     };
 
     let c = new Network(config);
+    
     const modelDir = '/app/models/perlin-noise/'+stringHash(JSON.stringify(config));
+    const outputFile = modelDir+'/output.png';
 
     if(!fs.existsSync(modelDir)){
         fs.mkdirSync(modelDir,{recursive:true});
     }
-
     console.log('carregando modelo...');
     await c.load(modelDir);
     console.log('gerando dados de treinamento...');
@@ -31,5 +33,8 @@ const stringHash = require('string-hash');
     await c.train(trainingData,1000,async function(epoch,epochs,loss,acc){
         console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         await c.save(modelDir);
+        let bytes = await generateImage(c);
+        let buffer = Buffer.from(bytes);
+        fs.writeFileSync(outputFile,buffer,'binary');
     });
 })();
