@@ -24,7 +24,9 @@ const configFile = '/app/examples/perlin-noise/configs/'+process.env.CONFIG+'.js
     await c.train(trainingData,1000,async function(epoch,epochs,loss,acc){
         console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         await c.save(modelDir);
-        let outputFile = outputFilePath+'/'+epoch+'.png';
-        fs.writeFileSync(outputFile,Buffer.from(await generateImage(c)),'binary');
+        if(epoch % 10 === 0){
+            let outputFile = outputFilePath+'/'+epoch+'.png';
+            fs.writeFileSync(outputFile,Buffer.from(await generateImage(c)),'binary');
+        }
     });
 })();
