@@ -1,0 +1,16 @@
+{
+    "inputShape": [
+        4
+    ],
+    "outputShape": [
+        1
+    ],
+    "optimizer": "sgd",
+    "loss": "meanSquaredError",
+    "testingSize": 0.5,
+    "batchSize": 64,
+    "layers": [
+        "dense",
+        "dense"
+    ]
+}

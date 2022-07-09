@@ -2,26 +2,19 @@ const generateTrainingData = require('./generate-training-data');
 const generateImage = require('./generate-image');
 const fs = require('fs');
 const stringHash = require('string-hash');
+const configFile = '/app/examples/perlin-noise/configs/'+process.env.CONFIG+'.json';
 
 (async function(){
     const Network = require('../../Networks/Network');
   
     let batchSize = 128;
 
-    let config = {
-        inputShape:[4],
-        outputShape:[1],
-        optimizer:'sgd',
-        loss:'absoluteDifference',
-        testingSize:0.5,
-        batchSize:batchSize,
-        layers:['dense','dense']
-    };
-
+    let config = JSON.parse(fs.readFileSync(configFile,{encoding:'utf-8'}));
+    let hash = stringHash(JSON.stringify(config));
     let c = new Network(config);
-    
-    const modelDir = '/app/models/perlin-noise/'+stringHash(JSON.stringify(config));
-    const outputFile = modelDir+'/output.png';
+   
+    const modelDir = '/app/models/perlin-noise/'+hash;
+    const outputFile = '/app/outputs/'+hash+'.png';
 
     if(!fs.existsSync(modelDir)){
         fs.mkdirSync(modelDir,{recursive:true});

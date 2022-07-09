@@ -2,21 +2,53 @@ version: '3.3'
 volumes:
   models:
 services:
-  train:
+  train_1:
     build:
       context: .
       target: perlin
     mem_limit: 256MB
-    cpus: 0.1
     volumes:
       - models:/app/models
-  server:
+      - ./outputs:/app/outputs
+    environment:
+        CONFIG: 404951133
+  train_2:
     build:
       context: .
-      target: server
-    mem_limit: 128MB
-    cpus: 0.1
-    ports:
-      - 8000:3000
+      target: perlin
+    mem_limit: 256MB
     volumes:
       - models:/app/models
+      - ./outputs:/app/outputs
+    environment:
+      CONFIG: 558321357
+  train_3:
+    build:
+      context: .
+      target: perlin
+    mem_limit: 256MB
+    volumes:
+      - models:/app/models
+      - ./outputs:/app/outputs
+    environment:
+      CONFIG: 1897916942
+  train_4:
+    build:
+      context: .
+      target: perlin
+    mem_limit: 256MB
+    volumes:
+      - models:/app/models
+      - ./outputs:/app/outputs
+    environment:
+      CONFIG: 3318148023
+  train_5:
+    build:
+      context: .
+      target: perlin
+    mem_limit: 256MB
+    volumes:
+      - models:/app/models
+      - ./outputs:/app/outputs
+    environment:
+      CONFIG: 3492005018
