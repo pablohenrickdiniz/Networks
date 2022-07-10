@@ -26,7 +26,7 @@ function initialize(self,options){
         let dataset = tf.data.array(data).map(function(d){
             let input = reshape(tf.tensor(d.input),self.inputTensorShape);
             let output = reshape(tf.tensor(d.output),self.outputTensorShape);
-            
+
             return {
                 xs:input,
                 ys:output
@@ -39,7 +39,7 @@ function initialize(self,options){
         let testing_size = Math.floor(size*testingSize);
         
         let testing_dataset = dataset.take(testing_size).batch(batchSize);
-        let training_dataset = dataset.skip(testing_size).batch(batchSize);
+        let training_dataset = dataset.batch(batchSize);
 
         let loss;
         let acc;
