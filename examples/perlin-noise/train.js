@@ -2,7 +2,7 @@ const generateTrainingData = require('./generate-training-data');
 const generateImage = require('./generate-image');
 const fs = require('fs');
 const stringHash = require('string-hash');
-const configDir = './configs';
+const configDir = '/app/examples/perlin-noise/configs';
 const Network = require('../../Networks/Network');
 const path = require('path');
 

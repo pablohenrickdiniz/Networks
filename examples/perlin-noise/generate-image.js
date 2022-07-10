@@ -1,5 +1,5 @@
 
-const tf = require('@tensorflow/tfjs-node-gpu');
+const tf = require('@tensorflow/tfjs-node');
 
 module.exports = async function(model,options){
     options = options || {};
