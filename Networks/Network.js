@@ -22,7 +22,7 @@ function initialize(self,options){
     let learningRate = options.learningRate || 0.01;
     let model = null;
     
-    let train = async function(data,epochs,callback){
+    let train = async function(data,epochs,callback,onTrainEnd){
         let dataset = tf.data.array(data).map(function(d){
             let input = reshape(tf.tensor(d.input),self.inputTensorShape);
             let output = reshape(tf.tensor(d.output),self.outputTensorShape);
@@ -48,7 +48,7 @@ function initialize(self,options){
             let res = await self.model.fitDataset(training_dataset,{
                 validationData:testing_dataset,
                 verbose:0,
-                epochs:1
+                epochs:1,
             });
             let loss = res.history.loss[0];
             let acc = res.history.acc[0]*100;
@@ -66,6 +66,10 @@ function initialize(self,options){
             if(callback){
                 callback(i+1,epochs,loss,acc);
             }
+        }
+
+        if(onTrainEnd){
+            onTrainEnd(loss,acc);
         }
         
         return {loss:loss,acc:acc,learningRate:learningRate};
