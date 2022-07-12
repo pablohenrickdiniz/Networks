@@ -91,6 +91,64 @@ function addNormalization(model,inputShape){
     return getOuputShape(model);
 }
 
+function addFlatten(model,inputShape){
+    model.add(tf.layers.flatten({
+        inputShape: inputShape
+    }));
+    return getOuputShape(model);
+}
+
+function addDropout(model,inputShape,rate){
+    rate = rate || 0.1;
+    model.add(tf.layers.dropout({
+        inputShape: inputShape,
+        rate: rate
+    }));
+    return getOuputShape(model);
+}
+
+function addElu(model,inputShape){
+    model.add(tf.layers.elu({
+        inputShape: inputShape
+    }));
+    return getOuputShape(model);
+}
+
+function addLeakyReLU(model,inputShape){
+    model.add(tf.layers.leakyReLU({
+        inputShape: inputShape
+    }));
+    return getOuputShape(model);
+}
+
+function addPrelu(model,inputShape){
+    model.add(tf.layers.prelu({
+        inputShape: inputShape
+    }));
+    return getOuputShape(model);
+}
+
+function addReLU(model,inputShape){
+    model.add(tf.layers.reLU({
+        inputShape: inputShape
+    }));
+    return getOuputShape(model);
+}
+
+function addSoftmax(model,inputShape){
+    model.add(tf.layers.softmax({
+        inputShape: inputShape
+    }));
+    return getOuputShape(model);
+}
+
+function addThresholdedReLU(model,inputShape){
+    model.add(tf.layers.thresholdedReLU({
+        inputShape: inputShape
+    }));
+    return getOuputShape(model);
+}
+
 function getOuputShape(model){
     return model.output.shape.filter((v) => v !== null);
 }
@@ -114,6 +172,7 @@ function createModel(options){
         let filters = units;
         let poolSize = 2;
         let strides = null;
+        let rate = 0.1;
        
         if(layer.constructor === {}.constructor){
             if(typeof layer.type === 'string'){
@@ -138,6 +197,10 @@ function createModel(options){
 
             if(!isNaN(layer.strides)){
                 strides = layer.strides;
+            }
+
+            if(!isNaN(layer.rate)){
+                rate = layer.rate;
             }
         }
         else if(typeof layer === 'string'){
@@ -166,6 +229,30 @@ function createModel(options){
             case 'layerNormalization':
                 inputShape = addNormalization(model,inputShape);
                 break;
+            case 'flatten':
+                inputShape = addFlatten(model,inputShape);
+                break;
+            case 'dropout':
+                inputShape = addDropout(model,inputShape,rate);
+                break;
+            case 'elu':
+                inputShape = addElu(model,inputShape);
+                break;
+            case 'leakyReLU':
+                inputShape = addLeakyReLU(model,inputShape);
+                break;
+            case 'prelu':
+                inputShape = addPrelu(model,inputShape);
+                break;
+            case 'reLU':
+                inputShape = addReLU(model,inputShape);
+                break;
+            case 'softmax':
+                inputShape = addSoftmax(model,inputShape);
+                break;
+            case 'thresholdedReLU':
+                inputShape = addThresholdedReLU(model,inputShape);
+                break;
         }
 
         if(i === options.layers.length - 1){
@@ -176,11 +263,6 @@ function createModel(options){
                     shapeProduct(outputShape),'linear'
                 );
             }
-            /*
-            if(shapeProduct(inputShape) > units){
-                addDense(model,inputShape,units,'linear');
-            }
-            */
         }
     }
     
