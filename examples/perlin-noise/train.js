@@ -2,7 +2,8 @@ const generateTrainingData = require('./generate-training-data');
 const generateImage = require('./generate-image');
 const fs = require('fs');
 const stringHash = require('string-hash');
-const configDir = '/app/examples/perlin-noise/configs';
+//const configDir = '/app/examples/perlin-noise/configs';
+const configDir =  './configs';
 const Network = require('../../Networks/Network');
 const path = require('path');
 
@@ -27,11 +28,11 @@ const path = require('path');
         
             console.log(`carregando modelo ${hash}...`);
             await c.load(modelDir);
-            let promise = c.train(trainingData,100,async function(epoch,epochs,loss,acc){
+            let promise = c.train(trainingData,10,async function(epoch,epochs,loss,acc){
                 console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
                 await c.save(modelDir);
             },async function(){
-                fs.writeFileSync(outputFile,Buffer.from(await generateImage(c)),'binary');
+                fs.writeFileSync(outputFile,Buffer.from(await generateImage(c,{x:-250,y:-250,width:500,height:500,scale:100})),'binary');
             });
             promises.push(promise);
         }

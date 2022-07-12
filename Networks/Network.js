@@ -78,8 +78,7 @@ function initialize(self,options){
     let predict = function(input){
         return self
             .model
-            .predict(tf.tensor(input))
-            .arraySync();
+            .predict(tf.tensor(input));
     };
 
     let save = async function(dir){
