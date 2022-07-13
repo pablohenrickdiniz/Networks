@@ -25,7 +25,9 @@ const { model } = require('@tensorflow/tfjs-node');
         inputShape:[128,128,3],
         outputShape:[2056,2056,3],
         layers:[
-            {type:'conv2d',filters:8}
+            {type:'conv2d',filters:3},
+            {type:'maxPooling2d'},
+            {type:'dense',units:2056}
         ]
     });
 
