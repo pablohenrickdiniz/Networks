@@ -12,24 +12,33 @@ function learningRateFrom(e){
     return 1/Math.pow(10,e);
 }
 
+function equals(shapeA,shapeB){
+    if(shapeA.length !== shapeB.length){
+        return false;
+    }
+    for(let i = 0; i < shapeA.length;i++){
+        if(shapeA[i] !== shapeB[i]){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function addConv2d(model,inputShape,filters){
     filters = filters || shapeProduct(inputShape);
     model.add(tf.layers.conv2d({
-        inputShape: addReshape(model,inputShape,3),
+        inputShape: reshapeToDimen(model,inputShape,3),
         kernelSize:1,
         filters:filters
     }));
     return getOuputShape(model);
 }
 
-function addMaxPooling2d(model/*,poolSize,strides*/){
-    /*
-    poolSize = poolSize || 2;
-    strides = strides || poolSize;
-    */
+function addMaxPooling2d(model){
     model.add(tf.layers.maxPooling2d({
-        poolSize: /*poolSize*/1,
-        strides: /*strides*/1
+        poolSize: 1,
+        strides: 1
     }));
     return getOuputShape(model);
 }
@@ -55,9 +64,9 @@ function calcTargetShape(inputShape,length){
     return targetShape;
 }
 
-function addReshape(model,inputShape,targetDim){
+function reshapeToDimen(model,inputShape,targetDim){
     let targetShape = calcTargetShape(inputShape,targetDim);
-    if(targetShape.length !== inputShape.length){
+    if(!equals(inputShape,targetShape)){
         model.add(tf.layers.reshape({
             inputShape: inputShape,
             targetShape: targetShape
@@ -66,9 +75,17 @@ function addReshape(model,inputShape,targetDim){
     return targetShape;
 }
 
+function reshapeToShape(model,inputShape,targetShape){
+    if(!equals(inputShape,targetShape)){
+        inputShape = addFlatten(model,inputShape);
+        addDense(model,inputShape,128);
+    }
+    return getOuputShape(model);
+}
+
 function addRecurrent(type,model,inputShape,units,activation){
     model.add(tf.layers[type]({
-        inputShape: addReshape(model,inputShape,2),
+        inputShape: reshapeToDimen(model,inputShape,2),
         units: units,
         activation: activation
     }));
@@ -149,6 +166,13 @@ function addThresholdedReLU(model,inputShape){
     return getOuputShape(model);
 }
 
+function addUpSampling2d(model,size){
+    model.add(tf.layers.upSampling2d({
+        size: size
+    }));
+    return getOuputShape(model);
+}
+
 function getOuputShape(model){
     return model.output.shape.filter((v) => v !== null);
 }
@@ -168,11 +192,13 @@ function createModel(options){
         let layer = options.layers[i];
         let type = 'dense';
         let activation = 'linear';
-        let units = shapeProduct(inputShape)*2;
-        let filters = units;
+        let units =  1;
+        let filters = 1;
         let poolSize = 2;
         let strides = null;
         let rate = 0.1;
+        let targetShape = inputShape;
+        let size = [2,2];
        
         if(layer.constructor === {}.constructor){
             if(typeof layer.type === 'string'){
@@ -202,13 +228,13 @@ function createModel(options){
             if(!isNaN(layer.rate)){
                 rate = layer.rate;
             }
+
+            if(layer.targetShape){
+                targetShape = layer.targetShape;
+            }
         }
         else if(typeof layer === 'string'){
             type = layer;
-        }
-
-        if(i === options.layers.length - 1){
-            units = shapeProduct(outputShape);
         }
         
         switch(type){
@@ -222,6 +248,9 @@ function createModel(options){
                 break;
             case 'maxPooling2d':
                 inputShape = addMaxPooling2d(model,poolSize,strides);
+                break;
+            case 'upSampling2d':
+                inputShape = addUpSampling2d(model,size)
                 break;
             case 'dense':
                 inputShape = addDense(model,inputShape,units,activation);
@@ -253,16 +282,13 @@ function createModel(options){
             case 'thresholdedReLU':
                 inputShape = addThresholdedReLU(model,inputShape);
                 break;
+            case 'reshape':
+                inputShape = reshapeToDimen(model,inputShape,targetShape.length);
+                break;
         }
 
         if(i === options.layers.length - 1){
-            if(inputShape.length !== outputShape.length || shapeProduct(inputShape) !== shapeProduct(outputShape)){
-                addDense(
-                    model,
-                    addReshape(model,inputShape,outputShape.length),
-                    shapeProduct(outputShape),'linear'
-                );
-            }
+           // inputShape = reshapeToShape(model,inputShape,outputShape);
         }
     }
     

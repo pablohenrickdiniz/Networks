@@ -12,7 +12,7 @@ const path = require('path');
         return;
     }
     let configs = fs.readdirSync(configDir).map((file) => path.join(configDir,file));
-    let trainingData = generateTrainingData(1000);
+    let trainingData = generateTrainingData(10000);
     let promises = [];
     for(let i = 0; i < configs.length;i++){
         let config = JSON.parse(fs.readFileSync(configs[i],{encoding:'utf-8'}));

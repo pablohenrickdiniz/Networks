@@ -8,6 +8,8 @@ const Network = require('../../Networks/Network');
             "maxPooling2d"
         ]
     });
+    net.summary();
+    process.exit();
 
     let trainingData = [];
     for(let i = 0; i < 100;i++){
