@@ -24,8 +24,11 @@ function initialize(self,options){
     
     let train = async function(data,epochs,callback,onTrainEnd){
         let dataset = tf.data.array(data).map(function(d){
-            let input = reshape(tf.tensor(d.input),self.inputTensorShape);
-            let output = reshape(tf.tensor(d.output),self.outputTensorShape);
+            let input = d.input instanceof tf.Tensor?d.input:tf.tensor(d.input);
+            let output = d.output instanceof tf.Tensor?d.output:tf.tensor(d.output);
+
+            input = reshape(input,self.inputTensorShape);
+            output = reshape(output,self.outputTensorShape);
 
             return {
                 xs:input,
@@ -76,9 +79,10 @@ function initialize(self,options){
     };
 
     let predict = function(input){
+        input = input instanceof tf.Tensor?input:tf.tensor(input);
         return self
             .model
-            .predict(tf.tensor(input));
+            .predict(input);
     };
 
     let save = async function(dir){

@@ -301,15 +301,18 @@ function createModel(options){
 };
 
 function reshape(tensor,shape){
-    let length = shapeProduct(shape);
-    let data = tensor.flatten().arraySync();
-    while(data.length < length){
-        data.push(0);
+    if(!equals(tensor.shape,shape)){
+        let length = shapeProduct(shape);
+        let data = tensor.flatten().arraySync();
+        while(data.length < length){
+            data.push(0);
+        }
+        if(data.length > length){
+            data = data.slice(0,length);
+        }
+        return tf.tensor(data,shape);
     }
-    if(data.length > length){
-        data = data.slice(0,length);
-    }
-    return tf.tensor(data,shape);
+    return tensor;
 }
 
 function shapeProduct(shape){

@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@tensorflow/tfjs-node": "^3.18.0",
+    "jimp": "^0.16.1",
     "noisejs": "^2.1.0",
     "sharp": "^0.30.7",
     "string-hash": "^1.1.3"
