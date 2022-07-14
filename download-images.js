@@ -61,7 +61,7 @@ function loadExistingIds(){
             return ids.indexOf(img.id) === -1 &&
             (img.width > minSize || img.height > minSize);
         }).map((img) => img.src.original);
-        downloaded += await downloadImages(images,downloaded+1);
+        downloaded += (await downloadImages(images,downloaded+1));
         page++;
     }
 })();

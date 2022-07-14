@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const imagesDir = './original';
+const imagesDir = '../../images';
 const outputDir = './output';
 const Network = require('../../Networks/Network');
 const sharp = require('./sharp');

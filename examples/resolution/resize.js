@@ -3,7 +3,7 @@ const fs = require('fs');
 //const sharp = require('sharp');
 const path = require('path');
 const sharp = require('./sharp');
-const imagesDir = './original';
+const imagesDir = '../../images';
 const highResDir = './high-resolution';
 const lowResDir  ='./low-resolution';
 
@@ -30,11 +30,11 @@ const lowResDir  ='./low-resolution';
         if(sharpSource === null){
             continue;
         }
-        await sharpSource.resize(2048,2048,{fit:'fill'}).toFile(highResImage);
+        await sharpSource.resize(2048,2048).toFile(highResImage);
         let sharpHigh = (await sharp(highResImage));
         if(sharpHigh === null){
             continue;
         }
-        await sharpHigh.resize(128,128,{fit:'fill'}).toFile(lowResImage);
+        await sharpHigh.resize(128,128).toFile(lowResImage);
     }
 })();
