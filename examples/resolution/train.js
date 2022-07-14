@@ -40,7 +40,7 @@ const Network = require('../../Networks/Network');
         };
 
          /** Config B */
-         let config = {
+         let configB = {
             inputShape:[128,128,3],
             outputShape:[2048,2048,3],
             layers:[
@@ -62,7 +62,7 @@ const Network = require('../../Networks/Network');
         };
 
          /** Config C */
-         let configC = {
+         let config = {
             inputShape:[128,128,3],
             outputShape:[2048,2048,3],
             layers:[
