@@ -3,7 +3,7 @@ const path = require('path');
 const highResDir = '/content/drive/MyDrive/ia-projects/resolution/high-resolution';
 const lowResDir = '/content/drive/MyDrive/ia-projects/resolution/low-resolution';
 const modelsDir = '/content/drive/MyDrive/ia-projects/resolution/models';
-const tf = require('@tensorflow/tfjs-node');
+const tf = require('@tensorflow/tfjs-node-gpu');
 const stringHash = require('string-hash');
 const Network = require('../../Networks/Network');
 
