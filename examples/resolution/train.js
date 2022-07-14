@@ -185,52 +185,50 @@ let configs = [
 ];
 
 (async function(){
-    while(true){
-        if(!fs.existsSync(highResDir)){
-            fs.mkdirSync(highResDir,{recursive:true});
-        }
-    
-        if(!fs.existsSync(lowResDir)){
-            fs.mkdirSync(lowResDir,{recursive:true});
-        }
+    if(!fs.existsSync(highResDir)){
+        fs.mkdirSync(highResDir,{recursive:true});
+    }
 
-        if(!fs.existsSync(modelsDir)){
-            fs.mkdirSync(modelsDir,{recursive:true});
-        }
+    if(!fs.existsSync(lowResDir)){
+        fs.mkdirSync(lowResDir,{recursive:true});
+    }
 
-        for(let i = 0; i < configs.length;i++){
-            let config = configs[i];
-            let id = String(stringHash(JSON.stringify(config)));
-            let modelDir = path.join(modelsDir,id);
-            if(fs.existsSync(modelDir)){
-                continue;
-            }
-            let net = new Network(config);        
-            await net.load(modelDir);
-            let data =  fs
-                .readdirSync(lowResDir)
-                .filter((f) => fs.existsSync(path.join(highResDir,f)))
-                .map((f) => path.join(lowResDir,f))
-                .map(function(f){
-                    return [
-                        f,
-                        path.join(highResDir,path.basename(f))
-                    ];
-                })
-                .slice(0,4);
-    
-    
-            let dataset = tf.data.array(data).map(function(e){
-                return {
-                    xs: tf.node.decodeImage(fs.readFileSync(e[0])),
-                    ys: tf.node.decodeImage(fs.readFileSync(e[1]))
-                };
-            });
-        
-            await net.train(dataset,epochs,async function(epoch,epochs,loss,acc){
-                console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
-            });
-            await net.save(modelDir);
+    if(!fs.existsSync(modelsDir)){
+        fs.mkdirSync(modelsDir,{recursive:true});
+    }
+
+    for(let i = 0; i < configs.length;i++){
+        let config = configs[i];
+        let id = String(stringHash(JSON.stringify(config)));
+        let modelDir = path.join(modelsDir,id);
+        if(fs.existsSync(modelDir)){
+            continue;
         }
+        let net = new Network(config);        
+        await net.load(modelDir);
+        let data =  fs
+            .readdirSync(lowResDir)
+            .filter((f) => fs.existsSync(path.join(highResDir,f)))
+            .map((f) => path.join(lowResDir,f))
+            .map(function(f){
+                return [
+                    f,
+                    path.join(highResDir,path.basename(f))
+                ];
+            })
+            .slice(0,4);
+
+
+        let dataset = tf.data.array(data).map(function(e){
+            return {
+                xs: tf.node.decodeImage(fs.readFileSync(e[0])),
+                ys: tf.node.decodeImage(fs.readFileSync(e[1]))
+            };
+        });
+    
+        await net.train(dataset,epochs,async function(epoch,epochs,loss,acc){
+            console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
+        });
+        await net.save(modelDir);
     }
 })();
