@@ -1,5 +1,5 @@
 const  fs = require('fs');
-const imagesDir = './images';
+const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
 const path = require('path');
 const pexels = require('./api/pexels');
 const axios = require('axios');
@@ -49,7 +49,6 @@ function loadExistingIds(){
             recursive: true
         });
     }
-    let ids = loadExistingIds();
     let downloaded = ids.length;
     let page = 1;
     while(downloaded < total){

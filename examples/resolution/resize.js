@@ -22,19 +22,35 @@ const lowResDir  ='./low-resolution';
     
     let images = fs.readdirSync(imagesDir).map((f) => path.join(imagesDir,f));
     for(let i = 0; i < images.length;i++){
+        let index = i +1;
         let sourceImage = images[i];
         let highResImage = path.join(highResDir,path.basename(sourceImage));
         let lowResImage = path.join(lowResDir,path.basename(sourceImage));
         
-        let sharpSource =  (await sharp(sourceImage));
-        if(sharpSource === null){
-            continue;
+        if(!fs.existsSync(highResImage)){
+            let sharpSource =  (await sharp(sourceImage));
+            if(sharpSource === null){
+                continue;
+            }
+            await sharpSource.resize(2048,2048).toFile(highResImage);
+            console.log(`${index}/${images.length} - high resolution image saved to ${highResImage}`);
         }
-        await sharpSource.resize(2048,2048).toFile(highResImage);
+        else{
+            console.log(`${index}/${images.length} - file ${highResImage} already exists!`);
+        }
+
         let sharpHigh = (await sharp(highResImage));
+        
         if(sharpHigh === null){
             continue;
         }
-        await sharpHigh.resize(128,128).toFile(lowResImage);
+
+        if(!fs.existsSync(lowResImage)){
+            await sharpHigh.resize(128,128).toFile(lowResImage);
+            console.log(`${index}/${images.length} - low resolution image saved to ${lowResImage}`);
+        }
+        else{
+            console.log(`${index}/${images.length} - file ${lowResImage} already exists!`);
+        }
     }
 })();
