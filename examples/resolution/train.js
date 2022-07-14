@@ -205,7 +205,7 @@ const Network = require('../../Networks/Network');
             optimizer:'adam'
         };
 
-        let id = stringHash(JSON.stringify(config));
+        let id = String(stringHash(JSON.stringify(config)));
         let modelDir = path.join(modelsDir,id);
     
         let net = new Network(config);        
