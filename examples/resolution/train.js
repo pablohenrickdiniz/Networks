@@ -35,7 +35,7 @@ const Network = require('../../Networks/Network');
                 {type:'maxPooling2d'},
                 {type:'upSampling2d'}
             ],
-            batchSize:2,
+            batchSize:1,
             optimizer:'adam'
         };
 
@@ -57,7 +57,7 @@ const Network = require('../../Networks/Network');
                 {type:'maxPooling2d'},
                 {type:'upSampling2d'}
             ],
-            batchSize:2,
+            batchSize:1,
             optimizer:'adam'
         };
 
@@ -79,7 +79,7 @@ const Network = require('../../Networks/Network');
                 {type:'maxPooling2d'},
                 {type:'upSampling2d'}
             ],
-            batchSize:2,
+            batchSize:1,
             optimizer:'adam'
         };
 
@@ -104,7 +104,7 @@ const Network = require('../../Networks/Network');
                 {type:'maxPooling2d'},
                 {type:'upSampling2d'}
             ],
-            batchSize:2,
+            batchSize:1,
             optimizer:'adam'
         };
 
@@ -129,7 +129,7 @@ const Network = require('../../Networks/Network');
                 {type:'maxPooling2d'},
                 {type:'upSampling2d'}
             ],
-            batchSize:2,
+            batchSize:1,
             optimizer:'adam'
         };
 
@@ -151,7 +151,7 @@ const Network = require('../../Networks/Network');
                 {type:'maxPooling2d'},
                 {type:'upSampling2d'}
             ],
-            batchSize:2,
+            batchSize:1,
             optimizer:'adam'
         };
 
@@ -176,7 +176,7 @@ const Network = require('../../Networks/Network');
                 {type:'maxPooling2d'},
                 {type:'upSampling2d'}
             ],
-            batchSize:2,
+            batchSize:1,
             optimizer:'adam'
         };
 
@@ -201,7 +201,7 @@ const Network = require('../../Networks/Network');
                 {type:'maxPooling2d'},
                 {type:'upSampling2d'}
             ],
-            batchSize:2,
+            batchSize:1,
             optimizer:'adam'
         };
 
@@ -220,7 +220,7 @@ const Network = require('../../Networks/Network');
                     path.join(highResDir,path.basename(f))
                 ];
             })
-            .slice(0,8);
+            .slice(0,4);
 
 
         let dataset = tf.data.array(data).map(function(e){
@@ -230,7 +230,7 @@ const Network = require('../../Networks/Network');
             };
         });
     
-        await net.train(dataset,100,async function(epoch,epochs,loss,acc){
+        await net.train(dataset,20,async function(epoch,epochs,loss,acc){
             console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         });
         await net.save(modelDir);
