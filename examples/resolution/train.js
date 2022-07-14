@@ -44,27 +44,28 @@ const predict = require('./predict');
         });
         
         await net.load('./model');
-    
-        let inputs = fs
+        let data =  fs
             .readdirSync(lowResDir)
             .filter((f) => fs.existsSync(path.join(highResDir,f)))
             .map((f) => path.join(lowResDir,f))
+            .map(function(f){
+                return [
+                    f,
+                    path.join(highResDir,path.basename(f))
+                ];
+            })
             .sort(() => Math.random() - 0.5)
-            .slice(0,16);
+            .slice(0,64);
+
+
+        let dataset = tf.data.array(data).map(function(e){
+            return {
+                xs: tf.node.decodeImage(fs.readFileSync(e[0])),
+                ys: tf.node.decodeImage(fs.readFileSync(e[1]))
+            };
+        });
     
-        let outputs = inputs.map((f) => path.join(highResDir,path.basename(f)));
-        let trainingData = [];
-    
-        for(let i = 0; i < inputs.length;i++){
-            let input = inputs[i];
-            let output = outputs[i];
-            trainingData.push({
-                input:tf.node.decodeImage(fs.readFileSync(input)),
-                output:tf.node.decodeImage(fs.readFileSync(output))
-            });
-        }
-    
-        await net.train(trainingData,10,async function(epoch,epochs,loss,acc){
+        await net.train(dataset,10,async function(epoch,epochs,loss,acc){
             console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         });
     

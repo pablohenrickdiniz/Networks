@@ -23,18 +23,24 @@ function initialize(self,options){
     let model = null;
     
     let train = async function(data,epochs,callback,onTrainEnd){
-        let dataset = tf.data.array(data).map(function(d){
-            let input = d.input instanceof tf.Tensor?d.input:tf.tensor(d.input);
-            let output = d.output instanceof tf.Tensor?d.output:tf.tensor(d.output);
-
-            input = reshape(input,self.inputTensorShape);
-            output = reshape(output,self.outputTensorShape);
-
-            return {
-                xs:input,
-                ys:output
-            };
-        });
+        let dataset;
+        if(data instanceof tf.data.Dataset){
+            dataset = data;
+        }
+        else{
+            dataset = tf.data.array(data).map(function(d){
+                let input = d.input instanceof tf.Tensor?d.input:tf.tensor(d.input);
+                let output = d.output instanceof tf.Tensor?d.output:tf.tensor(d.output);
+    
+                input = reshape(input,self.inputTensorShape);
+                output = reshape(output,self.outputTensorShape);
+    
+                return {
+                    xs:input,
+                    ys:output
+                };
+            });
+        }
 
         let size = dataset.size;
         dataset = dataset.shuffle(1024);
