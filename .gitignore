@@ -2,7 +2,6 @@ node_modules
 examples/perlin-noise/model
 examples/perlin-noise/configs
 examples
-outputs/resolution/high-resolution
-outputs/resolution/low-resolution
-outputs/resolution/original
-outputs/resolution/output
+examples/resolution/high-resolution
+examples/resolution/low-resolution
+images
