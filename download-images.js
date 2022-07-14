@@ -5,6 +5,13 @@ const pexels = require('./api/pexels');
 const axios = require('axios');
 const total = 1000;
 const minSize = 2048;
+
+if(!fs.existsSync(imagesDir)){
+    fs.mkdirSync(imagesDir,{
+        recursive: true
+    });
+}
+
 let ids = loadExistingIds();
 
 
@@ -44,11 +51,6 @@ function loadExistingIds(){
 }
 
 (async function(){
-    if(!fs.existsSync(imagesDir)){
-        fs.mkdirSync(imagesDir,{
-            recursive: true
-        });
-    }
     let downloaded = ids.length;
     let page = 1;
     while(downloaded < total){
