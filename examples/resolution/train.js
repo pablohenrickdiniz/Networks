@@ -1,11 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const Network = require('../../Networks/Network');
-const highResDir = '../resolution/high-resolution';
-const lowResDir = '../resolution/low-resolution';
-const outputDir = '../resolution/output';
+const highResDir = '/content/drive/MyDrive/ia-projects/resolution/high-resolution';
+const lowResDir = '/content/drive/MyDrive/ia-projects/resolution/low-resolution';
+const modelsDir = '/content/drive/MyDrive/ia-projects/resolution/models';
 const tf = require('@tensorflow/tfjs-node');
 const stringHash = require('string-hash');
+const Network = require('../../Networks/Network');
 
 (async function(){
     while(true){
@@ -15,10 +15,6 @@ const stringHash = require('string-hash');
     
         if(!fs.existsSync(lowResDir)){
             fs.mkdirSync(lowResDir,{recursive:true});
-        }
-    
-        if(!fs.existsSync(outputDir)){
-            fs.mkdirSync(outputDir,{recursive:true});
         }
 
         /** Config A (tested)*/
@@ -210,7 +206,7 @@ const stringHash = require('string-hash');
         };
 
         let id = stringHash(JSON.stringify(config));
-        let modelDir = './models/'+id;
+        let modelDir = path.join(modelsDir,id);
     
         let net = new Network(config);        
         await net.load(modelDir);
@@ -238,6 +234,5 @@ const stringHash = require('string-hash');
             console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         });
         await net.save(modelDir);
-        //await predict();
     }
 })();

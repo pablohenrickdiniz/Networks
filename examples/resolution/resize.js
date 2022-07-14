@@ -1,11 +1,10 @@
 const tf = require('@tensorflow/tfjs-node');
 const fs = require('fs');
-//const sharp = require('sharp');
 const path = require('path');
 const sharp = require('./sharp');
-const imagesDir = '../../images';
-const highResDir = './high-resolution';
-const lowResDir  ='./low-resolution';
+const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
+const highResDir = '/content/drive/MyDrive/ia-projects/resolution/high-resolution';
+const lowResDir  = '/content/drive/MyDrive/ia-projects/resolution/low-resolution';
 
 (async function(){
     if(!fs.existsSync(imagesDir)){
