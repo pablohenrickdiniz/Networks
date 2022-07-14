@@ -18,7 +18,7 @@ const Network = require('../../Networks/Network');
         }
 
         /** Config A (tested)*/
-        let config = {
+        let configA = {
             inputShape:[128,128,3],
             outputShape:[2048,2048,3],
             layers:[
@@ -40,7 +40,7 @@ const Network = require('../../Networks/Network');
         };
 
          /** Config B */
-         let configB = {
+         let config = {
             inputShape:[128,128,3],
             outputShape:[2048,2048,3],
             layers:[
