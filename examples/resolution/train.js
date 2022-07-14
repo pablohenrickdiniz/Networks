@@ -17,6 +17,10 @@ const Network = require('../../Networks/Network');
             fs.mkdirSync(lowResDir,{recursive:true});
         }
 
+        if(!fs.existsSync(modelsDir)){
+            fs.mkdirSync(modelsDir,{recursive:true});
+        }
+
         /** Config A (tested)*/
         let configA = {
             inputShape:[128,128,3],
