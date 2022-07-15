@@ -3,11 +3,10 @@ const path = require('path');
 const highResDir = '/content/drive/MyDrive/ia-projects/resolution/high-resolution';
 const lowResDir = '/content/drive/MyDrive/ia-projects/resolution/low-resolution';
 const modelsDir = '/content/drive/MyDrive/ia-projects/resolution/models';
-const tf = require('@tensorflow/tfjs-node-gpu');
+const tf = require('@tensorflow/tfjs-node');
 const stringHash = require('string-hash');
 const Network = require('../../Networks/Network');
 const epochs = 100;
-let config,modelDir,net,id,data,dataset;
 
 let configs = [
     /** Config A (tested)*/
@@ -28,7 +27,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:2,
+        batchSize:4,
         optimizer:'adam'
     },
     {
@@ -48,7 +47,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:2,
+        batchSize:4,
         optimizer:'adam'
     }, 
     {
@@ -68,7 +67,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:2,
+        batchSize:4,
         optimizer:'adam'
     },
     {
@@ -91,7 +90,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:2,
+        batchSize:4,
         optimizer:'adam'
     },
     {
@@ -114,7 +113,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:2,
+        batchSize:4,
         optimizer:'adam'
     },
     {
@@ -134,7 +133,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:2,
+        batchSize:4,
         optimizer:'adam'
     },
     {
@@ -157,7 +156,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:2,
+        batchSize:4,
         optimizer:'adam'
     },
     {
@@ -180,12 +179,12 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:2,
+        batchSize:4,
         optimizer:'adam'
     }
 ];
 
-(async function(){
+async function train(){
     if(!fs.existsSync(highResDir)){
         fs.mkdirSync(highResDir,{recursive:true});
     }
@@ -198,17 +197,16 @@ let configs = [
         fs.mkdirSync(modelsDir,{recursive:true});
     }
 
-
     for(let i = 0; i < configs.length;i++){
-        config = configs[i];
-        id = String(stringHash(JSON.stringify(config)));
-        modelDir = path.join(modelsDir,id);
+        let config = configs[i];
+        let id = String(stringHash(JSON.stringify(config)));
+        let modelDir = path.join(modelsDir,id);
         if(fs.existsSync(modelDir)){
             continue;
         }
-        net = new Network(config);        
+        let net = new Network(config);        
         await net.load(modelDir);
-        data =  fs
+        let data =  fs
             .readdirSync(lowResDir)
             .filter((f) => fs.existsSync(path.join(highResDir,f)))
             .map((f) => path.join(lowResDir,f))
@@ -218,9 +216,9 @@ let configs = [
                     path.join(highResDir,path.basename(f))
                 ];
             })
-            .slice(0,8);
+            .slice(0,16);
 
-        dataset = tf.data.array(data).map(function(e){
+        let dataset = tf.data.array(data).map(function(e){
             return {
                 xs: tf.node.decodeImage(fs.readFileSync(e[0])),
                 ys: tf.node.decodeImage(fs.readFileSync(e[1]))
@@ -230,14 +228,21 @@ let configs = [
         await net.train(dataset,epochs,async function(epoch,epochs,loss,acc){
             console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         });
+        
         await net.save(modelDir);
-
-        /** Limpar variáveis */
-        dataset = null;
-        data = null;
-        net = null;
-        id = null;
-        config = null;
-        modelDir = null;
     }
+};
+
+(async function(){
+    let finished = false;
+    do{
+        try{
+            await train();
+            finished = true;
+        }
+        catch(e){
+    
+        }
+    }
+    while(!finished);
 })();

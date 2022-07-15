@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const Network = require('../../Networks/Network');
 const sharp = require('./sharp');
-const tf = require('@tensorflow/tfjs-node-gpu');
+const tf = require('@tensorflow/tfjs-node');
 
 module.exports = async function(modelDir,imagesDir,outputDir){
     if(!fs.existsSync(imagesDir)){
