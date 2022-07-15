@@ -47,7 +47,7 @@ function initialize(self,options){
         for(i = 0; i < epochs;i++){
             ds = dataset.shuffle(1024);
             res = await self.model.fitDataset(ds.batch(batchSize),{
-                validationData:ds.take( Math.floor(size*testingSize)).batch(batchSize),
+                validationData:ds.take( Math.ceil(size*testingSize)).batch(batchSize),
                 verbose:0,
                 epochs:1
             });

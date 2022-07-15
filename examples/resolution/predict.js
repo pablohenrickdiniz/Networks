@@ -15,11 +15,11 @@ module.exports = async function(modelDir,imagesDir,outputDir){
 
     let net = new Network();
     await net.load(modelDir);
-    let images = fs.readdirSync(imagesDir).map((f) => path.join(imagesDir,f)).slice(0,8);
+    let images = fs.readdirSync(imagesDir).map((f) => path.join(imagesDir,f)).slice(0,1);
     
     for(let i = 0; i < images.length;i++){
         let inputImage = images[i];
-        let outputImage = path.join(outputDir,path.basename(inputImage));
+        let outputImage = path.join(outputDir,path.basename(modelDir)+'.jpeg');
         let sharpImage = await sharp(inputImage);
         if(sharpImage === null){
             continue;

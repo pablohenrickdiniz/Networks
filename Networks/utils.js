@@ -25,12 +25,13 @@ function equals(shapeA,shapeB){
     return true;
 }
 
-function addConv2d(model,inputShape,filters){
+function addConv2d(model,inputShape,filters,activation){
     filters = filters || shapeProduct(inputShape);
     model.add(tf.layers.conv2d({
         inputShape: reshapeToDimen(model,inputShape,3),
         kernelSize:1,
-        filters:filters
+        filters:filters,
+        activation: activation
     }));
     return getOuputShape(model);
 }
@@ -244,7 +245,7 @@ function createModel(options){
                 inputShape = addRecurrent(type,model,inputShape,units,activation);
                 break;
             case 'conv2d':
-                inputShape = addConv2d(model,inputShape,filters);
+                inputShape = addConv2d(model,inputShape,filters,activation);
                 break;
             case 'maxPooling2d':
                 inputShape = addMaxPooling2d(model,poolSize,strides);

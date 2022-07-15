@@ -12,10 +12,6 @@ const outputsDir = '/content/drive/MyDrive/ia-projects/resolution/outputs';
 
     for(let i = 0; i < dirs.length;i++){
         let modelDir = dirs[i];
-        let outputDir = path.join(outputsDir,path.basename(modelDir));
-        if(fs.existsSync(outputDir)){
-            continue;
-        }
-        await predict(modelDir,imagesDir,outputDir);
+        await predict(modelDir,imagesDir,outputsDir);
     }
 })();
