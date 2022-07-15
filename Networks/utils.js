@@ -25,11 +25,14 @@ function equals(shapeA,shapeB){
     return true;
 }
 
-function addConv2d(model,inputShape,filters,activation){
+function addConv2d(model,inputShape,filters,kernelSize,poolSize,activation){
     filters = filters || shapeProduct(inputShape);
+    kernelSize = kernelSize || 1;
+    poolSize = poolSize || 1;
     model.add(tf.layers.conv2d({
         inputShape: reshapeToDimen(model,inputShape,3),
-        kernelSize:1,
+        kernelSize:kernelSize,
+        poolSize:poolSize,
         filters:filters,
         activation: activation
     }));
@@ -195,6 +198,7 @@ function createModel(options){
         let activation = 'linear';
         let units =  1;
         let filters = 1;
+        let kernelSize = 1;
         let poolSize = 2;
         let strides = null;
         let rate = 0.1;
@@ -222,6 +226,10 @@ function createModel(options){
                 poolSize = layer.poolSize;
             }
 
+            if(!isNaN(layer.kernelSize)){
+                kernelSize = layer.kernelSize;
+            }
+
             if(!isNaN(layer.strides)){
                 strides = layer.strides;
             }
@@ -245,7 +253,7 @@ function createModel(options){
                 inputShape = addRecurrent(type,model,inputShape,units,activation);
                 break;
             case 'conv2d':
-                inputShape = addConv2d(model,inputShape,filters,activation);
+                inputShape = addConv2d(model,inputShape,filters,kernelSize,poolSize,activation);
                 break;
             case 'maxPooling2d':
                 inputShape = addMaxPooling2d(model,poolSize,strides);

@@ -13,6 +13,28 @@ let configs = [
         inputShape:[128,128,3],
         outputShape:[2048,2048,3],
         layers:[
+            {type:'conv2d',filters:8,activation:'relu',poolSize:[2,2]},
+            {type:'maxPooling2d'},
+            {type:'upSampling2d'},
+            {type:'conv2d',filters:8,activation:'relu',poolSize:[2,2]},
+            {type:'maxPooling2d'},
+            {type:'upSampling2d'},
+            {type:'conv2d',filters:8,activation:'relu',poolSize:[2,2]},
+            {type:'maxPooling2d'},
+            {type:'upSampling2d'},
+            {type:'conv2d',filters:8,activation:'relu',poolSize:[2,2]},
+            {type:'maxPooling2d'},
+            {type:'upSampling2d'},
+            {type:'conv2d',filters:3,activation:'relu'}
+        ],
+        batchSize:1,
+        optimizer:'adam'
+    },
+    
+    {
+        inputShape:[128,128,3],
+        outputShape:[2048,2048,3],
+        layers:[
             {type:'conv2d',filters:8},
             {type:'maxPooling2d'},
             {type:'upSampling2d'},
