@@ -41,26 +41,20 @@ function initialize(self,options){
                 };
             });
         }
-
-        let size = dataset.size;
-        dataset = dataset.shuffle(1024);
-    
-        let testing_size = Math.floor(size*testingSize);
         
-        let testing_dataset = dataset.take(testing_size).batch(batchSize);
-        let training_dataset = dataset.batch(batchSize);
-
-        let loss;
-        let acc;
-
-        for(let i = 0; i < epochs;i++){
-            let res = await self.model.fitDataset(training_dataset,{
-                validationData:testing_dataset,
+        let size = dataset.size, loss, acc, ds,res,i;
+    
+        for(i = 0; i < epochs;i++){
+            ds = dataset.shuffle(1024);
+            res = await self.model.fitDataset(ds.batch(batchSize),{
+                validationData:ds.take( Math.floor(size*testingSize)).batch(batchSize),
                 verbose:0,
-                epochs:1,
+                epochs:1
             });
-            let loss = res.history.loss[0];
-            let acc = res.history.acc[0]*100;
+
+            loss = res.history.loss[0];
+            acc  = res.history.acc[0]*100;
+
             if(isNaN(loss) || loss === Infinity){
                 learningRate = incrementLearningRate(learningRate);
                 console.log('learning rate changed to '+learningRate);
@@ -75,6 +69,9 @@ function initialize(self,options){
             if(callback){
                 callback(i+1,epochs,loss,acc);
             }
+
+            ds = null;
+            res = null;
         }
 
         if(onTrainEnd){

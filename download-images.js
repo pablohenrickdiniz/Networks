@@ -3,7 +3,7 @@ const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
 const path = require('path');
 const pexels = require('./api/pexels');
 const axios = require('axios');
-const total = 100;
+const total = 1000;
 const minSize = 2048;
 
 if(!fs.existsSync(imagesDir)){
@@ -17,26 +17,29 @@ let ids = loadExistingIds();
 
 async function downloadImages(images,index){
     let downloaded = 0;
+    let promises = [];
     for(let i = 0; i < images.length;i++){
         let image = images[i];
-        try{
-            let name = path.basename(image);
-            let outputFile = path.join(imagesDir,name);
-            let response = await axios({
-                method: 'GET',
-                url: image,
-                responseType: 'arraybuffer'
-            });
-            fs.writeFileSync(outputFile,response.data);
-            console.log(`${index}/${total} - imagem ${name} salva com sucesso`);
-            downloaded++;
-            index++;
-        }
-        catch(e){
-
-        }
+        let name = path.basename(image);
+        let outputFile = path.join(imagesDir,name);
+        let promise = axios({
+            method: 'GET',
+            url: image,
+            responseType: 'arraybuffer'
+        }).then(function(response){
+            if(response.status === 200){
+                fs.writeFile(outputFile,response.data,(err) => {
+                    if(!err){
+                        downloaded++;
+                        index++;
+                        console.log(`${index}/${total} - imagem ${name} salva com sucesso`);
+                    }
+                });
+            }
+        });
+        promises.push(promise);
     }
-
+    await Promise.all(promises);
     return downloaded;
 }
 
@@ -63,6 +66,7 @@ function loadExistingIds(){
             (img.width > minSize || img.height > minSize);
         }).map((img) => img.src.original);
         downloaded += (await downloadImages(images,downloaded+1));
+        console.log(`searching page ${page}...`);
         page++;
     }
 })();

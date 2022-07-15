@@ -6,7 +6,8 @@ const modelsDir = '/content/drive/MyDrive/ia-projects/resolution/models';
 const tf = require('@tensorflow/tfjs-node-gpu');
 const stringHash = require('string-hash');
 const Network = require('../../Networks/Network');
-const epochs = 50;
+const epochs = 100;
+let config,modelDir,net,id,data,dataset;
 
 let configs = [
     /** Config A (tested)*/
@@ -27,7 +28,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:1,
+        batchSize:2,
         optimizer:'adam'
     },
     {
@@ -47,7 +48,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:1,
+        batchSize:2,
         optimizer:'adam'
     }, 
     {
@@ -67,7 +68,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:1,
+        batchSize:2,
         optimizer:'adam'
     },
     {
@@ -90,7 +91,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:1,
+        batchSize:2,
         optimizer:'adam'
     },
     {
@@ -113,7 +114,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:1,
+        batchSize:2,
         optimizer:'adam'
     },
     {
@@ -133,7 +134,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:1,
+        batchSize:2,
         optimizer:'adam'
     },
     {
@@ -156,7 +157,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:1,
+        batchSize:2,
         optimizer:'adam'
     },
     {
@@ -179,7 +180,7 @@ let configs = [
             {type:'maxPooling2d'},
             {type:'upSampling2d'}
         ],
-        batchSize:1,
+        batchSize:2,
         optimizer:'adam'
     }
 ];
@@ -197,13 +198,17 @@ let configs = [
         fs.mkdirSync(modelsDir,{recursive:true});
     }
 
+
     for(let i = 0; i < configs.length;i++){
-        let config = configs[i];
-        let id = String(stringHash(JSON.stringify(config)));
-        let modelDir = path.join(modelsDir,id);
-        let net = new Network(config);        
+        config = configs[i];
+        id = String(stringHash(JSON.stringify(config)));
+        modelDir = path.join(modelsDir,id);
+        if(fs.existsSync(modelDir)){
+            continue;
+        }
+        net = new Network(config);        
         await net.load(modelDir);
-        let data =  fs
+        data =  fs
             .readdirSync(lowResDir)
             .filter((f) => fs.existsSync(path.join(highResDir,f)))
             .map((f) => path.join(lowResDir,f))
@@ -213,9 +218,9 @@ let configs = [
                     path.join(highResDir,path.basename(f))
                 ];
             })
-            .slice(0,4);
+            .slice(0,8);
 
-        let dataset = tf.data.array(data).map(function(e){
+        dataset = tf.data.array(data).map(function(e){
             return {
                 xs: tf.node.decodeImage(fs.readFileSync(e[0])),
                 ys: tf.node.decodeImage(fs.readFileSync(e[1]))
@@ -226,5 +231,13 @@ let configs = [
             console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
         });
         await net.save(modelDir);
+
+        /** Limpar variáveis */
+        dataset = null;
+        data = null;
+        net = null;
+        id = null;
+        config = null;
+        modelDir = null;
     }
 })();
