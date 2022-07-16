@@ -22,7 +22,10 @@ function initialize(self,options){
     let learningRate = options.learningRate || 0.01;
     let model = null;
     
-    let train = async function(data,epochs,callback,onTrainEnd){
+    let train = async function(data,options){
+        options = options || {};
+        let epochs = options.epochs || 1;
+        let stopOnLossGrow = options.stopOnLossGrow || false;
         let dataset;
         if(data instanceof tf.data.Dataset){
             dataset = data;
@@ -42,7 +45,7 @@ function initialize(self,options){
             });
         }
         
-        let size = dataset.size, loss, acc, ds,res,i;
+        let size = dataset.size, loss, oloss, acc, ds,res,i;
     
         for(i = 0; i < epochs;i++){
             ds = dataset.shuffle(1024);
@@ -66,16 +69,27 @@ function initialize(self,options){
                 break;
             }
            
-            if(callback){
-                callback(i+1,epochs,loss,acc);
+            if(
+                options.callbacks.constructor === {}.constructor &&
+                options.callbacks.onBatchEnd
+            ){
+                options.callbacks.onBatchEnd(i+1,epochs,loss,acc);
             }
-
             ds = null;
             res = null;
+
+            if(stopOnLossGrow && oloss !== null && loss >= oloss){
+                break;
+            }
+
+            oloss = loss;
         }
 
-        if(onTrainEnd){
-            onTrainEnd(loss,acc);
+        if(
+            options.callbacks.constructor === {}.constructor &&
+            options.callbacks.onTrainEnd
+        ){
+            options.callbacks.onTrainEnd(loss,acc);
         }
         
         return {loss:loss,acc:acc,learningRate:learningRate};

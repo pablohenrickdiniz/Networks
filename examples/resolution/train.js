@@ -6,657 +6,12 @@ const modelsDir = '/content/drive/MyDrive/ia-projects/resolution/models';
 const tf = require('@tensorflow/tfjs-node');
 const stringHash = require('string-hash');
 const Network = require('../../Networks/Network');
+const NetworkGenerator = require('../../Networks/NetworkGenerator');
+const predict = require('./predict');
 const epochs = 500;
-
-let configs = [
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8,activation:'relu',poolSize:[2,2]},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu',poolSize:[2,2]},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu',poolSize:[2,2]},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu',poolSize:[2,2]},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-    
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:6},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:12},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:6},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    }, 
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:8},
-            {type:'conv2d',filters:16},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:16},
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:32},
-            {type:'conv2d',filters:16},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:64},
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:8},
-            {type:'conv2d',filters:16},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:16},
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:8},
-            {type:'conv2d',filters:4},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:6},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:12},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:6},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            'dense',
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            'dense',
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            'dense',
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            'dense',
-            {type:'conv2d',filters:16},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            'dense',
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            'dense',
-            {type:'conv2d',filters:4},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            'dense',
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32},
-            {type:'conv2d',filters:32},
-            {type:'conv2d',filters:32},
-            {type:'conv2d',filters:3},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3},
-            {type:'upSampling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'conv2d',filters:3},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:3},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:6},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:6},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3},
-            {type:'upSampling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:16},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:16},
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:32},
-            {type:'conv2d',filters:64},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:64},
-            {type:'conv2d',filters:32},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:128},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:64,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:64,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:64,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:32,activation:'softmax'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:64,activation:'softmax'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:32,activation:'softmax'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'softmax'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:8},
-            {type:'conv2d',filters:8},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:8},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:8},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'maxPooling2d'},
-            {type:'upSampling2d'},
-            {type:'dense',activation:'relu',units:8},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'maxPooling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'upSampling2d'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:64,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:64,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:64,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'},
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:64,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:64,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    },
-
-    {
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:8,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:16,activation:'relu'},
-            {type:'upSampling2d'},
-            {type:'upSampling2d'},
-            {type:'conv2d',filters:3,activation:'relu'}
-        ],
-        batchSize:1,
-        optimizer:'adam'
-    }
-];
+const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
+const outputsDir = '/content/drive/MyDrive/ia-projects/resolution/outputs';
+const top = require('./top');
 
 async function train(){
     if(!fs.existsSync(highResDir)){
@@ -671,10 +26,37 @@ async function train(){
         fs.mkdirSync(modelsDir,{recursive:true});
     }
 
+    let configs = new NetworkGenerator({
+        inputShape:[128,128,3],
+        outputShape:[2048,2048,3],
+        layers:[
+            {type:'conv2d',filters:'1|2|4|8|16|32',activation:'relu',poolSize:['1|2|4|8|16|32','1|2|4|8|16|32']},
+            'maxPooling2d',
+            'upSampling2d',
+            {type:'conv2d',filters:'1|2|4|8|16|32',activation:'relu',poolSize:['1|2|4|8|16|32','1|2|4|8|16|32']},
+            'maxPooling2d',
+            'upSampling2d',
+            {type:'conv2d',filters:'1|2|4|8|16|32',activation:'relu',poolSize:['1|2|4|8|16|32','1|2|4|8|16|32']},
+            {type:'maxPooling2d'},
+            {type:'upSampling2d'},
+            {type:'conv2d',filters:'1|2|4|8|16|32',activation:'relu',poolSize:['1|2|4|8|16|32','1|2|4|8|16|32']},
+            'maxPooling2d',
+            'upSampling2d',
+            {type:'conv2d',filters:3,activation:'relu',poolSize:['1|2|4|8|16|32','1|2|4|8|16|32']},
+            'maxPooling2d'
+        ],
+        optimizer:'sgd',
+        loss:'meanSquaredError|absoluteDifference'
+    });
+
     for(let i = 0; i < configs.length;i++){
-        let config = configs[i];
+        let random = Math.floor(Math.random()*configs.length);
+        let config = configs.getItem(random);
         let id = String(stringHash(JSON.stringify(config)));
         let modelDir = path.join(modelsDir,id);
+        if(fs.existsSync(modelDir)){
+            continue;
+        }
      
         let net = new Network(config);        
         await net.load(modelDir);
@@ -697,11 +79,19 @@ async function train(){
             };
         });
     
-        await net.train(dataset,epochs,async function(epoch,epochs,loss,acc){
-            console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
+        await net.train(dataset,{
+            epochs: epochs,
+            stopOnLossGrow: true,
+            callbacks:{
+                onBatchEnd:function(epoch,epochs,loss,acc){
+                    console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
+                }
+            }
         });
         
         await net.save(modelDir);
+        await predict(modelDir,imagesDir,outputsDir);
+        await top(100,50);
     }
 };
 
@@ -713,7 +103,7 @@ async function train(){
             finished = true;
         }
         catch(e){
-    
+            console.log(e);
         }
     }
     while(!finished);

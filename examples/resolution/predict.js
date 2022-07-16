@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Network = require('../../Networks/Network');
-const sharp = require('./sharp');
+const sharp = require('sharp');
 const tf = require('@tensorflow/tfjs-node');
 
 module.exports = async function(modelDir,imagesDir,outputDir){
@@ -15,8 +15,7 @@ module.exports = async function(modelDir,imagesDir,outputDir){
 
     let net = new Network();
     await net.load(modelDir);
-    let images = fs.readdirSync(imagesDir).map((f) => path.join(imagesDir,f)).slice(0,1);
-    
+    let images = fs.readdirSync(imagesDir).map((f) => path.join(imagesDir,f));
     for(let i = 0; i < images.length;i++){
         let inputImage = images[i];
         let outputImage = path.join(outputDir,path.basename(modelDir)+'.jpeg');

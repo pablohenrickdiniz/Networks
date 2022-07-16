@@ -175,6 +175,8 @@ function parseLayers(_layers){
 
 let NetworkGenerator  = function(config){
     initialize(this,{
+		inputShape: config.inputShape,
+		outputShape: config.outputShape,
 		optimizers: parseOptimizers(config.optimizer),
 		losses: parseLosses(config.loss),
 		layers: parseLayers(config.layers)
@@ -223,25 +225,7 @@ function initialize(self,data){
 
 	let getItem = function(index){
 		let groupsConfig = getGroupsConfig();
-		let names =  groupsConfig.reduce(function(a,b){
-			let concat = [];
-			if(b.key){
-				concat = [b.key];
-			}
-			if(b.key === 'layers'){
-				concat = b.values.map(function(c){
-					return c.map(function(d){
-						return [d.key];
-					}).reduce(function(e,f){
-						return e.concat(f);
-					},[]);
-				}).reduce(function(g,h){
-					return g.concat(h);
-				},[]);
-			}
-			return a.concat(concat);
-		},[]);
-
+		
 		let groups =  groupsConfig.reduce(function(a,b){
 			let concat = [];
 			if(b.key !== 'layers'){
@@ -263,7 +247,8 @@ function initialize(self,data){
 
 		let perm = indexToPermutation(index,groups);
 		let config = {
-
+			inputShape: data.inputShape,
+			outputShape: data.outputShape
 		};
 
 		let j = 0;

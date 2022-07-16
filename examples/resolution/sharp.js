@@ -6,12 +6,12 @@ module.exports = async function(source){
         try{
             let image = await jimp.read(source);
             let buffer = await image.getBufferAsync('image/jpeg');
-            return sharp(buffer).jpeg();
+            return sharp(buffer);
         }
         catch(e){
 
         }
         return null;
     }
-    return sharp(source).jpeg();
+    return sharp(source);
 };
