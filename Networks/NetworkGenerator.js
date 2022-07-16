@@ -72,31 +72,37 @@ function parseNumeric(text){
 }
 
 function iterateOverPermutations(groups,callback){
+	let total = groups.reduce(function(a,b){
+		return a * b.length;
+	},1);
+	for(let i = 0; i < total;i++){
+		callback(indexToPermutation(i,groups));
+	}
+}
+
+function indexToPermutation(index,groups){
 	let indexes = [];
 	for(let i = 0; i < groups.length;i++){
 		indexes.push(0);
 	}
-	let total = groups.reduce(function(a,b){
-		return a * b.length;
-	},1);
-	let last = indexes.length - 1;
-	for(let i = 0; i < total;i++){
-		let perm = [];
-		for(let j = 0; j < indexes.length;j++){
-			perm.push(groups[j][indexes[j]]);
+	let t = indexes.length-1
+	while(index > 0){
+		if(index >= groups[t].length){
+			indexes[t] = index % groups[t].length;
+			index = Math.floor(index  / groups[t].length);
+			t--;
 		}
-		callback(perm,i);
-		indexes[indexes.length-1]++;
-		for(let j = last; j >= 0; j--){
-			if(indexes[j] >= groups[j].length){
-				indexes[j] = 0;
-				let prev = j-1;
-				if(prev >= 0){
-					indexes[prev]++;
-				}
-			}
+		else{
+			indexes[t] = index;
+			index = 0;
 		}
 	}
+
+	let perm = [];
+	for(let i = 0; i < groups.length;i++){
+		perm.push(groups[i][indexes[i]]);
+	}
+	return perm;
 }
 
 function parseShape(shape){
@@ -177,11 +183,133 @@ let NetworkGenerator  = function(config){
 
 function initialize(self,data){
 	let length = null;
-	let groups = null;
+	let groupsConfig = null;
+
+	let getGroupsConfig = function(){
+		if(groupsConfig === null){
+			let layers = [];
+			for(let i = 0; i < data.layers.length;i++){
+				let layer = data.layers[i];
+				let keys = Object.keys(layer);
+				let l = [];
+				for(let j = 0; j < keys.length;j++){
+					let k = keys[j];
+					l.push({
+						key: k,
+						values: layer[k]
+					});
+				}
+				layers.push(l);
+			}
+
+			groupsConfig = [
+				{
+					key:'optimizer',
+					values: data.optimizers
+				},
+				{
+					key:'loss',
+					values: data.losses
+				},
+				{
+					key:'layers',
+					values: layers
+				}
+			];
+			
+		}
+		return [...groupsConfig];
+	};
 
 	let getItem = function(index){
+		let groupsConfig = getGroupsConfig();
+		let names =  groupsConfig.reduce(function(a,b){
+			let concat = [];
+			if(b.key){
+				concat = [b.key];
+			}
+			if(b.key === 'layers'){
+				concat = b.values.map(function(c){
+					return c.map(function(d){
+						return [d.key];
+					}).reduce(function(e,f){
+						return e.concat(f);
+					},[]);
+				}).reduce(function(g,h){
+					return g.concat(h);
+				},[]);
+			}
+			return a.concat(concat);
+		},[]);
 
+		let groups =  groupsConfig.reduce(function(a,b){
+			let concat = [];
+			if(b.key !== 'layers'){
+				concat = [b.values];
+			}
+			else{
+				concat = b.values.map(function(c){
+					return c.map(function(d){
+						return [d.values];
+					}).reduce(function(e,f){
+						return e.concat(f);
+					},[]);
+				}).reduce(function(g,h){
+					return g.concat(h);
+				},[]);
+			}
+			return a.concat(concat);
+		},[]);
+
+		let perm = indexToPermutation(index,groups);
+		let config = {
+
+		};
+
+		let j = 0;
+		for(let i = 0; i < groupsConfig.length;i++){
+			let g = groupsConfig[i];
+			switch(g.key){
+				case 'optimizer':
+				case 'loss':
+					config[g.key] = perm[j];
+					j++;
+					break;
+				case 'layers':
+					let layers = [];
+					for(let k = 0; k < g.values.length;k++){
+						let configLayer = g.values[k];
+						let layer = {};
+						for(let l = 0; l < configLayer.length;l++){
+							switch(configLayer[l].key){
+								case 'types':
+									layer.type = perm[j];
+									j++;
+									break;
+								case 'activations':
+									layer.activation = perm[j];
+									j++;
+									break;
+								case 'filters':
+									layer.filters = perm[j];
+									j++;
+									break;
+								case 'poolSizes':
+									layer.poolSize = perm[j];
+									j++;
+									break;
+							}
+						}
+						layers.push(layer);
+					}
+					config.layers = layers;
+					break;
+			}
+		}
+
+		return config;
 	};
+	
 
 	Object.defineProperty(self,'length',{
 		get:function(){
@@ -196,26 +324,6 @@ function initialize(self,data){
 				},1);
 			}	
 			return length;	
-		}
-	});
-
-	Object.defineProperty(self,'groups',{
-		get:function(){
-			if(groups === null){
-				groups = [
-					['optimizer',data.optimizers],
-					['loss',data.losses]
-				];
-				for(let i = 0; i < data.layers.length;i++){
-					let layer = data.layers[i];
-					let keys = Object.keys(layer);
-					for(let j = 0; j < keys.length;j++){
-						let k = keys[j];
-						groups.push([k,layer[k]]);
-					}
-				}
-			}
-			return groups;
 		}
 	});
 
