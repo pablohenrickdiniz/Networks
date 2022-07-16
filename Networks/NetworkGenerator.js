@@ -177,6 +177,7 @@ let NetworkGenerator  = function(config){
 
 function initialize(self,data){
 	let length = null;
+	let groups = null;
 
 	let getItem = function(index){
 
@@ -198,13 +199,31 @@ function initialize(self,data){
 		}
 	});
 
+	Object.defineProperty(self,'groups',{
+		get:function(){
+			if(groups === null){
+				groups = [
+					['optimizer',data.optimizers],
+					['loss',data.losses]
+				];
+				for(let i = 0; i < data.layers.length;i++){
+					let layer = data.layers[i];
+					let keys = Object.keys(layer);
+					for(let j = 0; j < keys.length;j++){
+						let k = keys[j];
+						groups.push([k,layer[k]]);
+					}
+				}
+			}
+			return groups;
+		}
+	});
+
 	Object.defineProperty(self,'getItem',{
 		get:function(){
 			return getItem;
 		}
 	});
 }
-
-
 
 module.exports = NetworkGenerator;
