@@ -6,7 +6,7 @@ const modelsDir = '/content/drive/MyDrive/ia-projects/resolution/models';
 const tf = require('@tensorflow/tfjs-node');
 const stringHash = require('string-hash');
 const Network = require('../../Networks/Network');
-const epochs = 50;
+const epochs = 500;
 
 let configs = [
     {
@@ -675,9 +675,7 @@ async function train(){
         let config = configs[i];
         let id = String(stringHash(JSON.stringify(config)));
         let modelDir = path.join(modelsDir,id);
-        if(fs.existsSync(modelDir)){
-            continue;
-        }
+     
         let net = new Network(config);        
         await net.load(modelDir);
         let data =  fs

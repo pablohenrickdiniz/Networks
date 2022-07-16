@@ -12,7 +12,7 @@ function initialize(self,options){
     let layers = options.layers || ['dense'];
     let testingSize = options.testingSize || 0.5;
     let type = options.type || 'generic';
-    let batchSize = options.batchSize || 64;
+    let batchSize = options.batchSize || 1;
     let inputShape = options.inputShape || [1];
     let outputShape = options.outputShape || [1];
     let normalize = options.normalize || false;

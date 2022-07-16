@@ -12,6 +12,6 @@ const outputsDir = '/content/drive/MyDrive/ia-projects/resolution/outputs';
 
     for(let i = 0; i < dirs.length;i++){
         let modelDir = dirs[i];
-        await predict(modelDir,imagesDir,outputsDir);
+        await predict(modelDir,imagesDir,outputsDir,true);
     }
 })();
