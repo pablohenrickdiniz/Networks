@@ -25,7 +25,7 @@ async function train(){
     if(!fs.existsSync(modelsDir)){
         fs.mkdirSync(modelsDir,{recursive:true});
     }
-
+    //config A
     let configs = new NetworkGenerator({
         inputShape:[128,128,3],
         outputShape:[2048,2048,3],
@@ -45,13 +45,30 @@ async function train(){
             {type:'conv2d',filters:3,activation:'relu',poolSize:['1|2|4|8|16|32','1|2|4|8|16|32']},
             'maxPooling2d'
         ],
-        optimizer:'sgd',
-        loss:'meanSquaredError|absoluteDifference'
+        optimizer:'rmsprop|adam',
+        loss:'meanSquaredError|huberLoss|cosineDistance|absoluteDifference'
     });
+
+    //config B
+    configs = new NetworkGenerator({
+        inputShape:[128,128,3],
+        outputShape:[2048,2048,3],
+        layers:[
+            {type:'conv2d',filters:'2|4|8|16|32|64',activation:'*'},
+           // {type:'conv2d',filters:'2|4|8|16|32|64',activation:'*'},
+            {type:'conv2d',filters:3,activation:'*'},
+            {type:'upSampling2d',size:[16,16]}
+        ],
+        optimizer:'rmsprop|adam',
+        loss:'meanSquaredError|huberLoss|cosineDistance|absoluteDifference'
+    });
+
 
     for(let i = 0; i < configs.length;i++){
         let random = Math.floor(Math.random()*configs.length);
+       // let random = i;
         let config = configs.getItem(random);
+      
         let id = String(stringHash(JSON.stringify(config)));
         let modelDir = path.join(modelsDir,id);
         if(fs.existsSync(modelDir)){
@@ -81,7 +98,7 @@ async function train(){
     
         await net.train(dataset,{
             epochs: epochs,
-            stopOnLossGrow: true,
+            stopOnLossGrow:true,
             callbacks:{
                 onBatchEnd:function(epoch,epochs,loss,acc){
                     console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
@@ -91,7 +108,7 @@ async function train(){
         
         await net.save(modelDir);
         await predict(modelDir,imagesDir,outputsDir);
-        await top(100,50);
+        await top(1000,100);
     }
 };
 

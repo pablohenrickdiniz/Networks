@@ -1,16 +1,13 @@
-const optimizers = ['adadelta', 'adam', 'adamax', 'aldagrad', 'momentum', 'rmsprop', 'sgd'];
+const optimizers = ['adam', 'adamax', 'aldagrad', 'rmsprop', 'sgd'];
 const activations = ['elu', 'hardSigmoid', 'linear', 'mish', 'relu', 'relu6', 'selu', 'sigmoid', 'softmax', 'softplus', 'softsign', 'swish', 'tanh'];
 const layers = ['conv2d', 'dense', 'dropout', 'elu', 'flatten', 'gru', 'layerNormalization', 'leakyReLU', 'lstm', 'maxPooling2d', 'prelu', 'reLU', 'reshape', 'simpleRNN', 'softmax', 'thresholdedReLU', 'upSampling2d'];
 const losses = [
 	'absoluteDifference',
-	'computeWeightedLoss', 
 	'cosineDistance', 
 	'hingeLoss', 
 	'huberLoss', 
 	'logLoss', 
-	'meanSquaredError', 
-	'sigmoidCrossEntropy', 
-	'softmaxCrossEntropy'
+	'meanSquaredError'
 ];
 
 function parseOptimizers(text){
@@ -133,6 +130,8 @@ function parseLayers(_layers){
 		let strides = [];
 		let rates = [];
 		let targetShapes = [];
+		let sizes = [];
+		let filters = [];
 
 		if(typeof l === 'string'){
 			types = parseLayersTypes(l);
@@ -147,6 +146,7 @@ function parseLayers(_layers){
   			strides = parseNumeric(l.strides);
            	rates = parseNumeric(l.rate);
           	targetShapes = parseShape(l.targetShape);
+			sizes = parseShape(l.size);
 		}
 
 		let _layer = {
@@ -155,6 +155,7 @@ function parseLayers(_layers){
 			units: units,
 			filters: filters,
 			poolSizes: poolSizes,
+			sizes: sizes,
 			kernelSizes: kernelSizes,
 			strides: strides,
 			rates: rates,
@@ -281,6 +282,10 @@ function initialize(self,data){
 									break;
 								case 'poolSizes':
 									layer.poolSize = perm[j];
+									j++;
+									break;
+								case 'sizes':
+									layer.size = perm[j];
 									j++;
 									break;
 							}

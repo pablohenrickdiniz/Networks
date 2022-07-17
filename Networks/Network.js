@@ -45,9 +45,10 @@ function initialize(self,options){
             });
         }
         
-        let size = dataset.size, loss, oloss, acc, ds,res,i;
-    
-        for(i = 0; i < epochs;i++){
+        let size = dataset.size, loss, oloss,avgLoss = null, oAvgLoss = null, acc, ds,res;
+        let totalLoss = 0;
+
+        for(let i = 0; i < epochs;i++){
             ds = dataset.shuffle(1024);
             res = await self.model.fitDataset(ds.batch(batchSize),{
                 validationData:ds.take( Math.ceil(size*testingSize)).batch(batchSize),
@@ -65,34 +66,38 @@ function initialize(self,options){
                 model = createModel(self.options);
                 continue;
             }
-            else if(loss === 0){
+            else if(loss <= 0){
                 break;
             }
-           
+
+            totalLoss += loss;
+            avgLoss = totalLoss/(i+1);
+            
             if(
                 options.callbacks.constructor === {}.constructor &&
                 options.callbacks.onBatchEnd
             ){
-                options.callbacks.onBatchEnd(i+1,epochs,loss,acc);
+                options.callbacks.onBatchEnd(i+1,epochs,avgLoss,acc);
             }
             ds = null;
             res = null;
 
-            if(stopOnLossGrow && oloss !== null && loss >= oloss){
+            if(stopOnLossGrow && oAvgLoss !== null && avgLoss >= oAvgLoss){
                 break;
             }
 
             oloss = loss;
+            oAvgLoss = avgLoss;
         }
 
         if(
             options.callbacks.constructor === {}.constructor &&
             options.callbacks.onTrainEnd
         ){
-            options.callbacks.onTrainEnd(loss,acc);
+            options.callbacks.onTrainEnd(avgLoss,acc);
         }
         
-        return {loss:loss,acc:acc,learningRate:learningRate};
+        return {loss:avgLoss,acc:acc,learningRate:learningRate};
     };
 
     let predict = function(input){

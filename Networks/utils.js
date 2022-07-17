@@ -241,6 +241,10 @@ function createModel(options){
             if(layer.targetShape){
                 targetShape = layer.targetShape;
             }
+
+            if(layer.size){
+                size = layer.size;
+            }
         }
         else if(typeof layer === 'string'){
             type = layer;
