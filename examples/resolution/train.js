@@ -54,13 +54,13 @@ async function train(){
         inputShape:[128,128,3],
         outputShape:[2048,2048,3],
         layers:[
-            {type:'conv2d',filters:'2|4|8|16|32|64',activation:'*'},
-           // {type:'conv2d',filters:'2|4|8|16|32|64',activation:'*'},
-            {type:'conv2d',filters:3,activation:'*'},
+            {type:'conv2d',filters:'2|4|8|16|32|64',activation:'relu'},
+            {type:'conv2d',filters:'2|4|8|16|32|64',activation:'relu'},
+            {type:'conv2d',filters:3,activation:'relu'},
             {type:'upSampling2d',size:[16,16]}
         ],
-        optimizer:'rmsprop|adam',
-        loss:'meanSquaredError|huberLoss|cosineDistance|absoluteDifference'
+        optimizer:'rmsprop|adam|sgd',
+        loss:'meanSquaredError'
     });
 
 

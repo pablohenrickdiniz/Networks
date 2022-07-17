@@ -19,6 +19,9 @@ module.exports = async function(modelDir,imagesDir,outputDir){
     for(let i = 0; i < images.length;i++){
         let inputImage = images[i];
         let outputImage = path.join(outputDir,path.basename(modelDir)+'.jpeg');
+        if(fs.existsSync(outputImage)){
+            continue;
+        }
         let sharpImage = await sharp(inputImage);
         if(sharpImage === null){
             continue;
