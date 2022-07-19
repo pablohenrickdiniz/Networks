@@ -54,9 +54,9 @@ async function train(){
         inputShape:[128,128,3],
         outputShape:[2048,2048,3],
         layers:[
-            {type:'conv2d',filters:'2|4|8|16|32|64|128',activation:'elu|relu',poolSize:['1|2|4|8|16|32|64','1|2|4|8|16|32|64']},
-        //    {type:'conv2d',filters:'2|4|8|16|32|64|128',activation:'elu|relu'},
-            {type:'conv2d',filters:3,activation:'elu|relu',poolSize:['1|2|4|8|16|32|64','1|2|4|8|16|32|64']},
+            {type:'conv2d',filters:'2|4|8|16|32|64|128',activation:'elu'},
+            {type:'conv2d',filters:'2|4|8|16|32|64|128',activation:'elu'},
+            {type:'conv2d',filters:3,activation:'relu'},
             {type:'upSampling2d',size:[16,16]}
         ],
         optimizer:'adam',
@@ -74,6 +74,7 @@ async function train(){
         console.log(JSON.stringify(config));
         if(fs.existsSync(modelDir)){
             console.log(`${i+1}/${configs.length} - pulando modelo ${id}...`);
+            await top(1000,100);
             continue;
         }
      
@@ -110,7 +111,7 @@ async function train(){
         
         await net.save(modelDir);
         await predict(modelDir,imagesDir,outputsDir);
-        await top(105,100);
+        await top(1000,100);
     }
 };
 

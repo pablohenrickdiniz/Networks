@@ -5,7 +5,6 @@ const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/outputs';
 const fs = require('fs');
 const path = require('path');
 
-
 async function sortImages(images){
     let sourceImage = await jimp.read(original);
     let distances = [];
