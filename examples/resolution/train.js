@@ -11,7 +11,7 @@ const predict = require('./predict');
 const epochs = 500;
 const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
 const outputsDir = '/content/drive/MyDrive/ia-projects/resolution/outputs';
-//const top = require('./top');
+const top = require('./top');
 
 async function train(){
     if(!fs.existsSync(highResDir)){
@@ -49,34 +49,23 @@ async function train(){
         loss:'meanSquaredError|huberLoss|cosineDistance|absoluteDifference'
     });
 
-    //config B
-    configs = new NetworkGenerator({
-        inputShape:[128,128,3],
-        outputShape:[2048,2048,3],
-        layers:[
-            {type:'conv2d',filters:'2|4|8|16|32|64',activation:'elu|relu|selu|relu6'},
-            {type:'conv2d',filters:3,activation:'elu|relu|selu|relu6'},
-            {type:'upSampling2d',size:[16,16]}
-        ],
-        optimizer:'rmsprop|adam|sgd',
-        loss:'meanSquaredError|absoluteDifference'
-    });
-
-     //config C
+     //config B
      configs = new NetworkGenerator({
         inputShape:[128,128,3],
         outputShape:[2048,2048,3],
         layers:[
-            {type:'conv2d',filters:'64',activation:'elu|relu|selu'},
-            {type:'conv2d',filters:3,activation:'elu|relu|selu'},
+            {type:'conv2d',filters:'2|4|8|16|32|64|128',activation:'elu|relu',poolSize:['1|2|4|8|16|32|64','1|2|4|8|16|32|64']},
+        //    {type:'conv2d',filters:'2|4|8|16|32|64|128',activation:'elu|relu'},
+            {type:'conv2d',filters:3,activation:'elu|relu',poolSize:['1|2|4|8|16|32|64','1|2|4|8|16|32|64']},
             {type:'upSampling2d',size:[16,16]}
         ],
-        optimizer:'adam|sgd',
-        loss:'meanSquaredError|absoluteDifference'
+        optimizer:'adam',
+        loss:'absoluteDifference'
     });
 
     for(let i = 0; i < configs.length;i++){
-        let random = Math.floor(Math.random()*configs.length);
+        //let random = Math.floor(Math.random()*configs.length);
+        let random = i;
         let config = configs.getItem(random);
       
         let id = String(stringHash(JSON.stringify(config)));
@@ -121,7 +110,7 @@ async function train(){
         
         await net.save(modelDir);
         await predict(modelDir,imagesDir,outputsDir);
-        //await top(1000,100);
+        await top(105,100);
     }
 };
 
