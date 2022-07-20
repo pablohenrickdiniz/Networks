@@ -8,7 +8,7 @@ const stringHash = require('string-hash');
 const Network = require('../../Networks/Network');
 const NetworkGenerator = require('../../Networks/NetworkGenerator');
 const predict = require('./predict');
-const epochs = 500;
+const epochs = 10000;
 const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
 const outputsDir = '/content/drive/MyDrive/ia-projects/resolution/outputs';
 const top = require('./top');
@@ -54,10 +54,21 @@ async function train(){
         inputShape:[128,128,3],
         outputShape:[2048,2048,3],
         layers:[
-            {type:'conv2d',filters:'2|4|8|16|32|64|128',activation:'elu'},
-            {type:'conv2d',filters:'2|4|8|16|32|64|128',activation:'elu'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'upSampling2d',size:[16,16]}
+            {type:'conv2d',filters:'8',activation:'elu'/*,poolSize:['1|2|4|6|8|16|32','1|2|4|6|8|16|32']*/},
+            {type:'conv2d',filters:3,activation:'relu'/*,poolSize:['1|2|4|6|8|16|32','1|2|4|6|8|16|32']*/},
+            {type:'upSampling2d',size:[2,2]},
+
+            {type:'conv2d',filters:'8',activation:'elu'/*,poolSize:['1|2|4|6|8|16|32','1|2|4|6|8|16|32']*/},
+            {type:'conv2d',filters:3,activation:'relu'/*,poolSize:['1|2|4|6|8|16|32','1|2|4|6|8|16|32']*/},
+            {type:'upSampling2d',size:[2,2]},
+
+            {type:'conv2d',filters:'8',activation:'elu'/*,poolSize:['1|2|4|6|8|16|32','1|2|4|6|8|16|32']*/},
+            {type:'conv2d',filters:3,activation:'relu'/*,poolSize:['1|2|4|6|8|16|32','1|2|4|6|8|16|32']*/},
+            {type:'upSampling2d',size:[2,2]},
+
+            {type:'conv2d',filters:'8',activation:'elu'/*,poolSize:['1|2|4|6|8|16|32','1|2|4|6|8|16|32']*/},
+            {type:'conv2d',filters:3,activation:'relu'/*,poolSize:['1|2|4|6|8|16|32','1|2|4|6|8|16|32']*/},
+            {type:'upSampling2d',size:[2,2]}
         ],
         optimizer:'adam',
         loss:'absoluteDifference'
@@ -72,11 +83,11 @@ async function train(){
         let modelDir = path.join(modelsDir,id);
         console.log(`${i+1}/${configs.length} - processando modelo ${id}...`);
         console.log(JSON.stringify(config));
-        if(fs.existsSync(modelDir)){
-            console.log(`${i+1}/${configs.length} - pulando modelo ${id}...`);
-            await top(1000,100);
-            continue;
-        }
+        // if(fs.existsSync(modelDir)){
+        //     console.log(`${i+1}/${configs.length} - pulando modelo ${id}...`);
+        //     await top(110,100);
+        //     continue;
+        // }
      
         let net = new Network(config);        
         await net.load(modelDir);
@@ -92,26 +103,27 @@ async function train(){
             })
             .slice(0,1);
 
+         
         let dataset = tf.data.array(data).map(function(e){
             return {
                 xs: tf.node.decodeImage(fs.readFileSync(e[0])),
                 ys: tf.node.decodeImage(fs.readFileSync(e[1]))
             };
         });
-    
+      
         await net.train(dataset,{
             epochs: epochs,
-            stopOnLossGrow:true,
+          //  stopOnLossGrow:true,
             callbacks:{
                 onBatchEnd:function(epoch,epochs,loss,acc){
                     console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
                 }
             }
         });
-        
+      
         await net.save(modelDir);
         await predict(modelDir,imagesDir,outputsDir);
-        await top(1000,100);
+        await top(110,100);
     }
 };
 
