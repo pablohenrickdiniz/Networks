@@ -1,0 +1,7 @@
+32   - 16  filters
+64   - 128 filters
+128  - 64  filters
+256  - 64  filters
+512  - 64  filters
+1024 - 128 filters
+2048 - 128 filters
