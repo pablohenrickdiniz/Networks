@@ -36,7 +36,7 @@ async function generateResolution(image,resolution){
             count++;
             p = (count*100/total).toFixed(2);
             if(p !== oldp){
-                console.log(`${p} - gerando resoluções ${config.resolutions[j].join('x')}...`);
+                console.log(`${p}% - gerando resoluções ${config.resolutions[j].join('x')}...`);
                 oldp = p;
             }
         }
