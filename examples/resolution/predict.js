@@ -3,19 +3,24 @@ const path = require('path');
 const Network = require('../../Networks/Network');
 const sharp = require('sharp');
 const tf = require('@tensorflow/tfjs-node');
+const config = require('./config');
 
-module.exports = async function(modelDir,imagesDir,outputDir){
-    if(!fs.existsSync(imagesDir)){
-        fs.mkdirSync(imagesDir,{recursive:true});
+module.exports = async function(modelDir,source,target){
+    let sourceDir = path.join(config.resolutionsDir,source.join('x'));
+    let outputDir = path.join(config.outputsDir,target.join('x'));
+  
+    if(!fs.existsSync(sourceDir)){
+        fs.mkdirSync(sourceDir,{recursive:true});
     }
 
     if(!fs.existsSync(outputDir)){
         fs.mkdirSync(outputDir,{recursive:true});
     }
-
+    
     let net = new Network();
     await net.load(modelDir);
-    let images = fs.readdirSync(imagesDir).map((f) => path.join(imagesDir,f));
+    let images = fs.readdirSync(sourceDir).map((f) => path.join(sourceDir,f));
+
     for(let i = 0; i < images.length;i++){
         let inputImage = images[i];
         let outputImage = path.join(outputDir,path.basename(modelDir)+'.jpeg');
@@ -33,21 +38,21 @@ module.exports = async function(modelDir,imagesDir,outputDir){
       
         if(height > width){
             let p = width/height;
-            height = Math.max(height,2048);
+            height = Math.max(height,target[1]);
             width = height*p;
         }
         else if(height < width){
             let p = height/width;
-            width = Math.max(width,2048);
+            width = Math.max(width,target[0]);
             height = width*p;
         }
         else{
-            width = height = Math.max(width,2048);
+            width = height = Math.max(width,target[0]);
         }
 
         width = parseInt(width);
         height = parseInt(height);
-        let input = tf.node.decodeImage(await sharpImage.resize(128,128,{fit:'fill'}).toBuffer()).expandDims();
+        let input = tf.node.decodeImage(await sharpImage.resize(source[0],source[1],{fit:'fill'}).toBuffer()).expandDims();
         let predict = net.predict(input).squeeze();
         await (await sharp(await tf.node.encodePng(predict))).resize(width,height,{fit:'fill'}).toFile(outputImage);
     }
