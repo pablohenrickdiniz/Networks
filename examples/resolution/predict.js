@@ -7,7 +7,7 @@ const config = require('./config');
 
 module.exports = async function(modelDir,source,target){
     let sourceDir = path.join(config.resolutionsDir,source.join('x'));
-    let outputDir = path.join(config.outputsDir,target.join('x'));
+    let outputDir = path.join(config.outputsDir,source.join('x')+'_'+target.join('x'));
   
     if(!fs.existsSync(sourceDir)){
         fs.mkdirSync(sourceDir,{recursive:true});

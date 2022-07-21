@@ -20,18 +20,21 @@ function getModelName(c,source,target){
     ).join('_');
 }
 
-async function train(source,target){
+async function train(source,target,layers){
     if(!fs.existsSync(config.modelsDir)){
         fs.mkdirSync(config.modelsDir,{recursive:true});
     }
+
+    layers = layers || [
+        {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'elu'},
+        {type:'conv2d',filters:3,activation:'relu'},
+        {type:'upSampling2d',size:[2,2]},
+    ];
+
     let configs = new NetworkGenerator({
         inputShape:[...source].concat(3),
         outputShape:[...target].concat(3),
-        layers:[
-            {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'elu'},
-            {type:'conv2d',filters:3,activation:'relu'},
-            {type:'upSampling2d',size:[2,2]},
-        ],
+        layers:layers,
         optimizer:'adam',
         loss:'absoluteDifference'
     });
@@ -88,6 +91,6 @@ async function train(source,target){
 (async function(){
     for(let i = 0; i < config.train.length;i++){
         let t = config.train[i];
-        await train(t.input,t.output);
+        await train(t.input,t.output,t.layers);
     }
 })();
