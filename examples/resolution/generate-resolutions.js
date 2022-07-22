@@ -16,9 +16,14 @@ async function generateResolution(image,resolution){
     }
 
     let filename = path.join(resolutionDir,path.basename(image));
-    let sharpImage = await sharp(image)
-    if(sharpImage !== null){
-        await sharpImage.jpeg().resize(resolution[0],resolution[1]).toFile(filename);
+    try{
+        let sharpImage = await sharp(image)
+        if(sharpImage !== null){
+            await sharpImage.jpeg().resize(resolution[0],resolution[1]).toFile(filename);
+        }
+    }
+    catch(e){
+
     }
 }
 
