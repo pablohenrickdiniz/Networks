@@ -1,4 +1,4 @@
-const tf = require('@tensorflow/tfjs-node');
+const tf = require('@tensorflow/tfjs-node-gpu');
 const {reshape,incrementLearningRate,createModel} = require('./utils');
 const fs = require('fs');
 
@@ -15,12 +15,12 @@ function initialize(self,options){
     let batchSize = options.batchSize || 1;
     let inputShape = options.inputShape || [1];
     let outputShape = options.outputShape || [1];
-    let normalize = options.normalize || false;
 
     let loss = options.loss || 'meanSquaredError';
     let optimizer = options.optimizer || 'sgd';
     let learningRate = options.learningRate || 0.01;
     let model = null;
+    let metrics = options.metrics || null;
     
     let train = async function(data,options){
         options = options || {};
@@ -96,8 +96,11 @@ function initialize(self,options){
         ){
             options.callbacks.onTrainEnd(avgLoss,acc);
         }
-        
-        return {loss:avgLoss,acc:acc,learningRate:learningRate};
+
+        metrics = {
+            loss: avgLoss,
+            acc: acc
+        };
     };
 
     let predict = function(input){
@@ -125,6 +128,7 @@ function initialize(self,options){
             loss = options.loss;
             optimizer = options.optimizer;
             learningRate = options.learningRate;
+            metrics = options.metrics || null;
     
             model.compile({
                 loss: tf.losses[loss],
@@ -206,8 +210,20 @@ function initialize(self,options){
                 loss: loss,
                 optimizer: optimizer,
                 learningRate: learningRate,
-                normalize: normalize
+                metrics: metrics
             };
+        }
+    });
+
+    Object.defineProperty(self,'metrics',{
+        get:function(){
+            if(metrics === null){
+                metrics = {
+                    loss: null,
+                    acc: null
+                };
+            }
+            return metrics;
         }
     });
 

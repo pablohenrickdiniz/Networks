@@ -1,13 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const tf = require('@tensorflow/tfjs-node');
-const stringHash = require('string-hash');
+const tf = require('@tensorflow/tfjs-node-gpu');
 const Network = require('../../Networks/Network');
 const NetworkGenerator = require('../../Networks/NetworkGenerator');
-const predict = require('./predict');
 const epochs = 100;
 const config = require('./config');
-const top = require('./top');
+const sort = require('./sort');
 
 function getModelName(c,source,target){
     return [
@@ -26,7 +24,7 @@ async function train(source,target,layers){
     }
 
     layers = layers || [
-        {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'elu'},
+        {type:'conv2d',filters:'1-512',activation:'elu'},
         {type:'conv2d',filters:3,activation:'relu'},
         {type:'upSampling2d',size:[2,2]},
     ];
@@ -40,13 +38,14 @@ async function train(source,target,layers){
     });
 
     for(let i = 0; i < configs.length;i++){
-        let c = configs.getItem(i);
+        let rand = Math.floor(Math.random()*configs.length);
+        let c = configs.getItem(rand);
         let modelName = getModelName(c,source,target);
         let modelDir = path.join(config.modelsDir,modelName);
         console.log(`${i+1}/${configs.length} - processando modelo ${modelName}...`);
         if(fs.existsSync(modelDir)){
             console.log(`${i+1}/${configs.length} - pulando modelo ${modelName}...`);
-            await predict(modelDir,source,target);
+            await sort(source,target);
             continue;
         }
         let net = new Network(c);    
@@ -83,8 +82,7 @@ async function train(source,target,layers){
         });
 
         await net.save(modelDir);
-        await predict(modelDir,source,target);
-      //  await top(110,100);
+        await sort(source,target);
     }
 }
 

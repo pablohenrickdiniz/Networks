@@ -2,10 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const Network = require('../../Networks/Network');
 const sharp = require('sharp');
-const tf = require('@tensorflow/tfjs-node');
+const tf = require('@tensorflow/tfjs-node-gpu');
 const config = require('./config');
 
-module.exports = async function(modelDir,source,target){
+module.exports = async function(modelDir,source,target,index){
+    index = index || '';
     let sourceDir = path.join(config.resolutionsDir,source.join('x'));
     let outputDir = path.join(config.outputsDir,source.join('x')+'_'+target.join('x'));
   
@@ -23,10 +24,7 @@ module.exports = async function(modelDir,source,target){
 
     for(let i = 0; i < images.length;i++){
         let inputImage = images[i];
-        let outputImage = path.join(outputDir,path.basename(modelDir)+'.jpeg');
-        if(fs.existsSync(outputImage)){
-            continue;
-        }
+        let outputImage = path.join(outputDir,String(index).padStart(6,'0')+'_'+path.basename(modelDir)+'.jpeg');
         let sharpImage = await sharp(inputImage);
         if(sharpImage === null){
             continue;
