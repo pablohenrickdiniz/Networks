@@ -3,7 +3,7 @@ const path = require('path');
 const tf = require('@tensorflow/tfjs-node-gpu');
 const Network = require('../../Networks/Network');
 const NetworkGenerator = require('../../Networks/NetworkGenerator');
-const epochs = 100;
+const epochs = 10;
 const config = require('./config');
 const sort = require('./sort');
 

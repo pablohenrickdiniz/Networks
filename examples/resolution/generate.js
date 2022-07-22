@@ -10,6 +10,6 @@ const config = require('./config');
 
     for(let i = 0; i < dirs.length;i++){
         let modelDir = dirs[i];
-        await predict(modelDir,config.imagesDir,config.outputsDir,true);
+        await predict(modelDir,config.imagesDir,config.outputsDir,i);
     }
 })();

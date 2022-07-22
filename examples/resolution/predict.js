@@ -24,7 +24,7 @@ module.exports = async function(modelDir,source,target,index){
 
     for(let i = 0; i < images.length;i++){
         let inputImage = images[i];
-        let outputImage = path.join(outputDir,String(index).padStart(6,'0')+'_'+path.basename(modelDir)+'.jpeg');
+        let outputImage = path.join(outputDir,String(index).padStart(6,'0')+'_'+path.basename(modelDir)+path.basename(inputImage));
         let sharpImage = await sharp(inputImage);
         if(sharpImage === null){
             continue;
