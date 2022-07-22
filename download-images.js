@@ -3,7 +3,7 @@ const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
 const path = require('path');
 const pexels = require('./api/pexels');
 const axios = require('axios');
-const total = 100;
+const total = 1000;
 const minSize = 2048;
 
 if(!fs.existsSync(imagesDir)){
@@ -57,7 +57,6 @@ function loadExistingIds(){
     let downloaded = ids.length;
     let page = 1;
     while(downloaded < total){
-        let max = total-downloaded;
         let images = (await pexels({
             page: page,
             per_page: 10
@@ -65,7 +64,7 @@ function loadExistingIds(){
         .filter(function(img){
             return ids.indexOf(img.id) === -1 &&
             (img.width > minSize || img.height > minSize);
-        }).map((img) => img.src.original).slice(0,max);
+        }).map((img) => img.src.original);
 
         downloaded += (await downloadImages(images,downloaded+1));
         console.log(`searching page ${page}...`);
