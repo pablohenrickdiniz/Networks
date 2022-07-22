@@ -73,7 +73,7 @@ async function train(source,target,layers){
       
         await net.train(dataset,{
             epochs: epochs,
-          //  stopOnLossGrow:true,
+            stopOnLossGrow:true,
             callbacks:{
                 onBatchEnd:function(epoch,epochs,loss,acc){
                     console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
