@@ -3,7 +3,7 @@ const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
 const path = require('path');
 const pexels = require('./api/pexels');
 const axios = require('axios');
-const total = 1;
+const total = 100;
 const minSize = 2048;
 
 if(!fs.existsSync(imagesDir)){

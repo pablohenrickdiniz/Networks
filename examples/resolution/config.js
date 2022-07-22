@@ -11,41 +11,73 @@ module.exports = {
         [2048,2048]
     ],
     train:[
-        // {input:[16,16],output:[32,32]},
-        // {input:[32,32],output:[64,64]},
-        // {input:[64,64],output:[128,128]},
-        // {input:[128,128],output:[256,256]},
-        // {input:[256,256],output:[512,512]},
-        // {input:[512,512],output:[1024,1024]},
-        // {input:[1024,1024],output:[2048,2048]},
-        //test
+        {
+            input:[16,16], 
+            output:[32,32],
+            layers:[
+                {type:'conv2d',filters:'256',activation:'relu'},
+                {type:'upSampling2d',size:[2,2]},
+                {type:'conv2d',filters:3,activation:'relu'}
+            ]
+        },
+    
+        {
+            input:[32,32],
+            output:[64,64],
+            layers:[
+                {type:'conv2d',filters:'512',activation:'relu'},
+                {type:'upSampling2d',size:[2,2]},
+                {type:'conv2d',filters:3,activation:'relu'},
+            ]
+        },
+      
+        {
+            input:[64,64],
+            output:[128,128],
+            layers:[
+                {type:'conv2d',filters:'256',activation:'relu'},
+                {type:'upSampling2d',size:[2,2]},
+                {type:'conv2d',filters:3,activation:'relu'}
+            ]
+        },
+     
         {
             input:[128,128],
-            output:[2048,2048],
+            output:[256,256],
             layers:[
-                //128 -> 256
-                {type:'conv2d',filters:'32|64|128|256|512',activation:'relu'}, //512
-                // {type:'conv2d',filters:3,activation:'relu'},
+                {type:'conv2d',filters:'128',activation:'relu'}, 
                 {type:'upSampling2d',size:[2,2]},
-               
-                // // //256 -> 512
-                {type:'conv2d',filters:'32|64|128|256|512',activation:'relu'},
-                // // // {type:'conv2d',filters:3,activation:'relu'},
-                {type:'upSampling2d',size:[2,2]},
-              
-                // // //  //512 -> 1024
-                 {type:'conv2d',filters:'32|64|128|256|512',activation:'relu'},
-                // // // // //  {type:'conv2d',filters:3,activation:'relu'},
-                 {type:'upSampling2d',size:[2,2]},
-
-                //   //1024 -> 2048
-                  {type:'conv2d',filters:'32|64|128|256|512',activation:'relu'},
-                // //   {type:'conv2d',filters:3,activation:'relu'},
-                  {type:'upSampling2d',size:[2,2]},
-
-                  {type:'conv2d',filters:3,activation:'relu'},
+                {type:'conv2d',filters:3,activation:'relu'}
             ]
-        }
+        },
+       
+        {
+            input:[256,256],
+            output:[512,512],
+            layers:[
+                {type:'conv2d',filters:'128',activation:'relu'},
+                {type:'upSampling2d',size:[2,2]},
+                {type:'conv2d',filters:3,activation:'relu'}
+            ]
+        },
+        // {
+        //     input:[512,512],
+        //     output:[1024,1024],
+        //     layers:[
+        //         {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'relu'},
+        //         {type:'upSampling2d',size:[2,2]},
+        //         {type:'conv2d',filters:3,activation:'relu'}
+        //     ]
+        // },
+        // {
+        //     input:[1024,1024],
+        //     output:[2048,2048],
+        //     layers:[
+        //         {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'relu'},
+        //         {type:'upSampling2d',size:[2,2]},
+        //         {type:'conv2d',filters:3,activation:'relu'}
+        //     ]
+        // }
     ],
     imagesDir:'/content/drive/MyDrive/ia-projects/resolution/images',
     resolutionsDir:'/content/drive/MyDrive/ia-projects/resolution/resolutions',

@@ -13,8 +13,12 @@ function getModelName(c,source,target){
         target.join('x')
     ].concat(
         c.layers.map(function(l){
-            return l.filters;
-        }).filter((f) => f !== undefined)
+            return [
+                l.type,
+                l.filters,
+                l.activation
+            ].filter((f) => f !== undefined).join('_');
+        }).filter((f) => f.length > 0)
     ).join('_');
 }
 
@@ -38,16 +42,15 @@ async function train(source,target,layers){
     });
 
     for(let i = 0; i < configs.length;i++){
-        let rand = Math.floor(Math.random()*configs.length);
-        let c = configs.getItem(rand);
+        let c = configs.getItem(i);
         let modelName = getModelName(c,source,target);
         let modelDir = path.join(config.modelsDir,modelName);
         console.log(`${i+1}/${configs.length} - processando modelo ${modelName}...`);
-        if(fs.existsSync(modelDir)){
-            console.log(`${i+1}/${configs.length} - pulando modelo ${modelName}...`);
-            await sort(source,target);
-            continue;
-        }
+        // if(fs.existsSync(modelDir)){
+        //     console.log(`${i+1}/${configs.length} - pulando modelo ${modelName}...`);
+        //     await sort(source,target);
+        //     continue;
+        // }
         let net = new Network(c);    
         await net.load(modelDir);
         let sourceDir = path.join(config.resolutionsDir,source.join('x'));
@@ -73,7 +76,7 @@ async function train(source,target,layers){
       
         await net.train(dataset,{
             epochs: epochs,
-            stopOnLossGrow:true,
+        //    stopOnLossGrow:true,
             callbacks:{
                 onBatchEnd:function(epoch,epochs,loss,acc){
                     console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
