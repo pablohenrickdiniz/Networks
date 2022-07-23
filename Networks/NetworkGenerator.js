@@ -276,6 +276,10 @@ function initialize(self,data){
 									layer.activation = perm[j];
 									j++;
 									break;
+								case 'units':
+									layer.units = perm[j];
+									j++;
+									break;
 								case 'filters':
 									layer.filters = perm[j];
 									j++;

@@ -51,15 +51,15 @@ module.exports = {
             ]
         },
        
-        {
-            input:[256,256],
-            output:[512,512],
-            layers:[
-                {type:'conv2d',filters:'128',activation:'relu'},
-                {type:'upSampling2d',size:[2,2]},
-                {type:'conv2d',filters:3,activation:'relu'}
-            ]
-        },
+        // {
+        //     input:[256,256],
+        //     output:[512,512],
+        //     layers:[
+        //         {type:'conv2d',filters:'128',activation:'relu'},
+        //         {type:'upSampling2d',size:[2,2]},
+        //         {type:'conv2d',filters:3,activation:'relu'}
+        //     ]
+        // },
         // {
         //     input:[512,512],
         //     output:[1024,1024],

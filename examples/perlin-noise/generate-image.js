@@ -25,5 +25,5 @@ module.exports = async function(model,options){
         .minimum(255)
         .maximum(0);
 
-    return await tf.node.encodePng(output);
+    return await tf.node.encodeJpeg(output);
 };

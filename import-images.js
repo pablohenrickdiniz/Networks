@@ -16,13 +16,16 @@ async function importImages(file){
         }
         else if(stat.isFile()){
             try{
-                let image = sharp(file);
-                let hash = fileHash(file);
-                let filename = path.join(outputDir, hash+'.jpeg');
-                if(filename !== file){
-                   if(!fs.existsSync(filename)){
-                       await image.jpeg().toFile(filename);
-                       console.log(`image ${filename} saved!`);
+                let image = sharp(file).trim();
+                let meta = await image.metadata();
+                if(meta.width > 16 && meta.height > 12){
+                    let hash = fileHash(file);
+                    let filename = path.join(outputDir, hash+'.jpeg');
+                    if(filename !== file){
+                       if(!fs.existsSync(filename)){
+                           await image.jpeg().toFile(filename);
+                           console.log(`image ${filename} saved!`);
+                        }
                     }
                 }
             }
