@@ -1,10 +1,10 @@
 const  fs = require('fs');
-const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/images';
+const imagesDir = '/content/drive/MyDrive/ia-projects/resolution/downloaded-images';
 const path = require('path');
 const pexels = require('./api/pexels');
+const pixabay = require('./api/pixabay');
 const axios = require('axios');
-const total = 1000;
-const minSize = 2048;
+const total = 10000;
 
 if(!fs.existsSync(imagesDir)){
     fs.mkdirSync(imagesDir,{
@@ -12,15 +12,12 @@ if(!fs.existsSync(imagesDir)){
     });
 }
 
-let ids = loadExistingIds();
-
-
 async function downloadImages(images,index){
     let downloaded = 0;
     let promises = [];
     for(let i = 0; i < images.length;i++){
         let image = images[i];
-        let name = path.basename(image);
+        let name = base(image);
         let outputFile = path.join(imagesDir,name);
         let promise = axios({
             method: 'GET',
@@ -39,35 +36,49 @@ async function downloadImages(images,index){
         });
         promises.push(promise);
     }
-    await Promise.all(promises);
+    try{
+        await Promise.all(promises);
+    }
+    catch(e){
+
+    }
     return downloaded;
 }
 
-function loadExistingIds(){
-    return fs.readdirSync(imagesDir).map(function(img){
-        let match = img.match(/^pexels\-photo\-(\d+)\.jpeg$/);
-        if(match && match[1]){
-            return parseInt(match[1]);
-        }
-        return null;
-    }).filter((id) => id !== null);
+function base(url){
+    return path.basename(url).split('?')[0];
 }
 
 (async function(){
-    let downloaded = ids.length;
+    let existingFiles = fs.readdirSync(imagesDir);
+    let downloaded = existingFiles.length;
     let page = 1;
     while(downloaded < total){
-        let images = (await pexels({
-            page: page,
-            per_page: 10
-        }))
-        .filter(function(img){
-            return ids.indexOf(img.id) === -1 &&
-            (img.width > minSize || img.height > minSize);
-        }).map((img) => img.src.original);
+        let images = (await pixabay({
+                page: page,
+                per_page: 50
+            }))
+            .map((img) => img.largeImageURL)
+            .filter(function(url){
+                return existingFiles.indexOf(path.basename(url)) === -1;
+            });
 
+
+            // images = images.concat((await pexels({
+            //     page: page,
+            //     per_page: 50
+            // }))
+            // .map(function(img){
+            //     return img.src.large2x;
+            // })
+            // .filter(function(url){
+            //     return existingFiles.indexOf(base(url)) === -1;
+            // }));
+       
+        images = images.sort(() => Math.random() - 0.5);
         downloaded += (await downloadImages(images,downloaded+1));
         console.log(`searching page ${page}...`);
         page++;
+        existingFiles = fs.readdirSync(imagesDir);
     }
 })();

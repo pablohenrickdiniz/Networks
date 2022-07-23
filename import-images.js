@@ -1,4 +1,4 @@
-const importDir = '/content/drive/MyDrive/ia-projects/resolution/images-pack';
+const importDir = '/content/drive/MyDrive/ia-projects/resolution/downloaded-images';
 const outputDir = '/content/drive/MyDrive/ia-projects/resolution/images';
 const fs = require('fs');
 const sharp = require('sharp');
