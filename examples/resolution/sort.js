@@ -39,13 +39,13 @@ module.exports = async function(source,target){
         return d.modelDir;
     });
    
-    let outputDir = path.join(config.outputsDir,source.join('x')+'_'+target.join('x'));
-    if(fs.existsSync(outputDir)){
-        let images = fs.readdirSync(outputDir).map((f) => path.join(outputDir,f));
-        for(let i = 0; i < images.length;i++){
-            fs.unlinkSync(images[i]);
-        }
-    }
+    // let outputDir = path.join(config.outputsDir,source.join('x')+'_'+target.join('x'));
+    // if(fs.existsSync(outputDir)){
+    //     let images = fs.readdirSync(outputDir).map((f) => path.join(outputDir,f));
+    //     for(let i = 0; i < images.length;i++){
+    //         fs.unlinkSync(images[i]);
+    //     }
+    // }
  
     for(let i = 0; i < modelDirs.length;i++){
         await predict(modelDirs[i],source,target,i);

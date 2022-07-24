@@ -14,12 +14,17 @@ async function generateResolution(image,resolution){
     if(!fs.existsSync(resolutionDir)){
         fs.mkdirSync(resolutionDir,{recursive:true});
     }
+    let parsed = path.parse(image);
+    let filename = path.join(resolutionDir,parsed.name+'.png');
 
-    let filename = path.join(resolutionDir,path.basename(image));
+    if(fs.existsSync(filename)){
+        return;
+    }
+    
     try{
-        let sharpImage = await sharp(image)
+        let sharpImage = await sharp(image);
         if(sharpImage !== null){
-            await sharpImage.jpeg().resize(resolution[0],resolution[1]).toFile(filename);
+            await sharpImage.png().ensureAlpha().resize(resolution[0],resolution[1]).toFile(filename);
         }
     }
     catch(e){

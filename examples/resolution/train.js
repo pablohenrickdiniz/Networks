@@ -6,6 +6,7 @@ const NetworkGenerator = require('../../Networks/NetworkGenerator');
 const epochs = 100;
 const config = require('./config');
 const sort = require('./sort');
+const examples = 1000;
 
 function getModelName(c,source,target){
     return [
@@ -16,6 +17,7 @@ function getModelName(c,source,target){
             return [
                 l.type,
                 l.filters,
+                l.units,
                 l.activation
             ].filter((f) => f !== undefined).join('_');
         }).filter((f) => f.length > 0)
@@ -29,13 +31,13 @@ async function train(source,target,layers){
 
     layers = layers || [
         {type:'conv2d',filters:'1-512',activation:'elu'},
-        {type:'conv2d',filters:3,activation:'relu'},
+        {type:'conv2d',filters:4,activation:'relu'},
         {type:'upSampling2d',size:[2,2]},
     ];
 
     let configs = new NetworkGenerator({
-        inputShape:[...source].concat(3),
-        outputShape:[...target].concat(3),
+        inputShape:[...source].concat(4),
+        outputShape:[...target].concat(4),
         layers:layers,
         optimizer:'adam',
         loss:'absoluteDifference'
@@ -65,18 +67,20 @@ async function train(source,target,layers){
                     f,
                     path.join(targetDir,path.basename(f))
                 ];
-            });
+            })
+            .sort(() => Math.random() - 0.5)
+            .slice(0,examples);
 
         let dataset = tf.data.array(data).map(function(e){
             return {
-                xs: tf.node.decodeImage(fs.readFileSync(e[0])),
-                ys: tf.node.decodeImage(fs.readFileSync(e[1]))
+                xs: tf.node.decodeImage(fs.readFileSync(e[0]),4),
+                ys: tf.node.decodeImage(fs.readFileSync(e[1]),4)
             };
         });
       
         await net.train(dataset,{
             epochs: epochs,
-        //    stopOnLossGrow:true,
+           // stopOnLossGrow:true,
             callbacks:{
                 onBatchEnd:function(epoch,epochs,loss,acc){
                     console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
@@ -85,13 +89,15 @@ async function train(source,target,layers){
         });
 
         await net.save(modelDir);
-        await sort(source,target);
+        // await sort(source,target);
     }
 }
 
 (async function(){
-    for(let i = 0; i < config.train.length;i++){
-        let t = config.train[i];
-        await train(t.input,t.output,t.layers);
+    while(true){
+        for(let i = 0; i < config.train.length;i++){
+            let t = config.train[i];
+            await train(t.input,t.output,t.layers);
+        }
     }
 })();
