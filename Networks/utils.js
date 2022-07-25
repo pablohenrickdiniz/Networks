@@ -1,4 +1,4 @@
-const tf = require('@tensorflow/tfjs-node-gpu');
+const tf = require('@tensorflow/tfjs-node');
 
 function incrementLearningRate(learningRate){
     return learningRateFrom(learningRateLog(learningRate)+1);

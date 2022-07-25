@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const tf = require('@tensorflow/tfjs-node-gpu');
+const tf = require('@tensorflow/tfjs-node');
 const Network = require('../../Networks/Network');
 const NetworkGenerator = require('../../Networks/NetworkGenerator');
 const epochs = 1000;
@@ -42,7 +42,7 @@ async function train(source,target,layers){
         optimizer:'adam',
         loss:'absoluteDifference'
     });
-
+   
     for(let i = 0; i < configs.length;i++){
         let c = configs.getItem(i);
         let modelName = getModelName(c,source,target);
@@ -53,7 +53,7 @@ async function train(source,target,layers){
         //     await sort(source,target);
         //     continue;
         // }
-        let net = new Network(c);    
+        let net = new Network(c);   
         await net.load(modelDir);
         let sourceDir = path.join(config.resolutionsDir,source.join('x'));
         let targetDir = path.join(config.resolutionsDir,target.join('x'));

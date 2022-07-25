@@ -3,7 +3,7 @@ const max = Number.MAX_SAFE_INTEGER;
 const fs = require('fs');
 const config = require('./config');
 const path = require('path');
-const tf = require('@tensorflow/tfjs-node-gpu');
+const tf = require('@tensorflow/tfjs-node');
 
 async function generate_and_save(sx,sy,width,height,iterations){
     let scale = Math.pow(2,iterations-1)*7.8125;

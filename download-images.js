@@ -40,7 +40,7 @@ async function downloadImages(images,index){
         await Promise.all(promises);
     }
     catch(e){
-
+      
     }
     return downloaded;
 }
@@ -52,8 +52,8 @@ function base(url){
 (async function(){
     let existingFiles = fs.readdirSync(imagesDir);
     let downloaded = existingFiles.length;
-    let page = 1;
     while(downloaded < total){
+        let page =  Math.floor(Math.random()*10);
         let images = (await pixabay({
                 page: page,
                 per_page: 50
@@ -78,7 +78,6 @@ function base(url){
         images = images.sort(() => Math.random() - 0.5);
         downloaded += (await downloadImages(images,downloaded+1));
         console.log(`searching page ${page}...`);
-        page++;
         existingFiles = fs.readdirSync(imagesDir);
     }
 })();

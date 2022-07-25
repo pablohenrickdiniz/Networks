@@ -1,5 +1,5 @@
 const NetworkGenerator = require('../../Networks/NetworkGenerator');
-const tf = require('@tensorflow/tfjs-node-gpu');
+const tf = require('@tensorflow/tfjs-node');
 let gen = new NetworkGenerator({
     inputShape:[128,128,3],
     outputShape:[2048,2048,3],

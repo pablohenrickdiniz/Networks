@@ -1,4 +1,4 @@
-const tf = require('@tensorflow/tfjs-node-gpu');
+const tf = require('@tensorflow/tfjs-node');
 const {reshape,incrementLearningRate,createModel} = require('./utils');
 const fs = require('fs');
 
@@ -10,7 +10,6 @@ function Network(options){
 function initialize(self,options){
     options = options || {};
     let layers = options.layers || ['dense'];
-    let testingSize = options.testingSize || 0.5;
     let type = options.type || 'generic';
     let batchSize = options.batchSize || 1;
     let inputShape = options.inputShape || [1];
@@ -45,17 +44,14 @@ function initialize(self,options){
             });
         }
         
-        let size = dataset.size, loss, oloss,avgLoss = null, oAvgLoss = null, acc, ds,res;
+        let loss, avgLoss = null, oAvgLoss = null, acc, ds,res;
         let totalLoss = 0;
 
         for(let i = 0; i < epochs;i++){
-            ds = dataset.shuffle(1024);
-            res = await self.model.fitDataset(ds.batch(batchSize),{
-                validationData:ds.take( Math.ceil(size*testingSize)).batch(batchSize),
+            res = await self.model.fitDataset(dataset.batch(batchSize),{
                 verbose:0,
                 epochs:1
             });
-
             loss = res.history.loss[0];
             acc  = res.history.acc[0]*100;
 
@@ -101,13 +97,22 @@ function initialize(self,options){
             loss: avgLoss,
             acc: acc
         };
+        tf.dispose(dataset);
     };
 
     let predict = function(input){
-        input = input instanceof tf.Tensor?input:tf.tensor(input);
-        return self
+        if(input instanceof tf.Tensor){
+           input = tf.clone(input);
+        }
+        else{
+            input = tf.tensor(input);
+        }
+        let prediction = self
             .model
             .predict(input);
+
+        tf.dispose(input);
+        return prediction;
     };
 
     let save = async function(dir){
