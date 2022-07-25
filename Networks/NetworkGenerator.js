@@ -1,4 +1,4 @@
-const optimizers = ['adam', 'adamax', 'aldagrad', 'rmsprop', 'sgd'];
+const optimizers = ['adam', 'adamax', 'rmsprop', 'sgd'];
 const activations = ['elu', 'hardSigmoid', 'linear', 'mish', 'relu', 'relu6', 'selu', 'sigmoid', 'softmax', 'softplus', 'softsign', 'swish', 'tanh'];
 const layers = ['conv2d', 'dense', 'dropout', 'elu', 'flatten', 'gru', 'layerNormalization', 'leakyReLU', 'lstm', 'maxPooling2d', 'prelu', 'reLU', 'reshape', 'simpleRNN', 'softmax', 'thresholdedReLU', 'upSampling2d'];
 const losses = [

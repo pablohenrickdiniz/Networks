@@ -15,9 +15,9 @@ module.exports = {
             layers:[
                 {type:'conv2d',filters:'256',activation:'relu'},
                 {type:'upSampling2d',size:[2,2]},
-                {type:'conv2d',filters:4,activation:'relu'}
-            ],
-            batchSize:2
+                {type:'conv2d',filters:4,activation:'relu'},
+                {type:'dropout',rate:0.1}
+            ]
         },
     
         {
@@ -27,8 +27,8 @@ module.exports = {
                 {type:'conv2d',filters:'512',activation:'relu'},
                 {type:'upSampling2d',size:[2,2]},
                 {type:'conv2d',filters:4,activation:'relu'},
-            ],
-            batchSize:2
+                {type:'dropout',rate:0.1}
+            ]
         },
       
         {
@@ -37,52 +37,52 @@ module.exports = {
             layers:[
                 {type:'conv2d',filters:'256',activation:'relu'},
                 {type:'upSampling2d',size:[2,2]},
-                {type:'conv2d',filters:4,activation:'relu'}
-            ],
-            batchSize:2
+                {type:'conv2d',filters:4,activation:'relu'},
+                {type:'dropout',rate:0.1}
+            ]
         },
      
-        {
-            input:[128,128],
-            output:[256,256],
-            layers:[
-                {type:'conv2d',filters:'128',activation:'relu'}, 
-                {type:'upSampling2d',size:[2,2]},
-                {type:'conv2d',filters:4,activation:'relu'}
-            ],
-            batchSize:2
-        },
+        // {
+        //     input:[128,128],
+        //     output:[256,256],
+        //     layers:[
+        //         {type:'conv2d',filters:'128',activation:'relu'}, 
+        //         {type:'upSampling2d',size:[2,2]},
+        //         {type:'conv2d',filters:4,activation:'relu'}
+        //     ],
+        //     batchSize:2
+        // },
        
-        {
-            input:[256,256],
-            output:[512,512],
-            layers:[
-                {type:'conv2d',filters:'128',activation:'relu'},
-                {type:'upSampling2d',size:[2,2]},
-                {type:'conv2d',filters:4,activation:'relu'}
-            ],
-            batchSize:2
-        },
-        {
-            input:[512,512],
-            output:[1024,1024],
-            layers:[
-                {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'relu'},
-                {type:'upSampling2d',size:[2,2]},
-                {type:'conv2d',filters:4,activation:'relu'}
-            ],
-            batchSize:2
-        },
-        {
-            input:[1024,1024],
-            output:[2048,2048],
-            layers:[
-                {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'relu'},
-                {type:'upSampling2d',size:[2,2]},
-                {type:'conv2d',filters:4,activation:'relu'}
-            ],
-            batchSize:2
-        }
+        // {
+        //     input:[256,256],
+        //     output:[512,512],
+        //     layers:[
+        //         {type:'conv2d',filters:'128',activation:'relu'},
+        //         {type:'upSampling2d',size:[2,2]},
+        //         {type:'conv2d',filters:4,activation:'relu'}
+        //     ],
+        //     batchSize:2
+        // },
+        // {
+        //     input:[512,512],
+        //     output:[1024,1024],
+        //     layers:[
+        //         {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'relu'},
+        //         {type:'upSampling2d',size:[2,2]},
+        //         {type:'conv2d',filters:4,activation:'relu'}
+        //     ],
+        //     batchSize:2
+        // },
+        // {
+        //     input:[1024,1024],
+        //     output:[2048,2048],
+        //     layers:[
+        //         {type:'conv2d',filters:'1|2|4|8|16|32|64|128|256|512',activation:'relu'},
+        //         {type:'upSampling2d',size:[2,2]},
+        //         {type:'conv2d',filters:4,activation:'relu'}
+        //     ],
+        //     batchSize:2
+        // }
     ],
     imagesDir:'/content/drive/MyDrive/ia-projects/resolution/images',
     resolutionsDir:'/content/drive/MyDrive/ia-projects/resolution/resolutions',

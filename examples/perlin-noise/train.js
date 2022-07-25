@@ -4,7 +4,7 @@ const path = require('path');
 const conf = require('./config');
 const generateTrainingData = require('./generate-training-data');
 const generateImage = require('./generate-image');
-const epochs = 100;
+const epochs = 1000;
 const fs = require('fs');
 
 function getModelName(c){
@@ -15,7 +15,13 @@ function getModelName(c){
             l.filters,
             l.activation
         ].filter((f) => f !== undefined).join('_');
-    }).filter((f) => f.length > 0).join('_');
+    })
+    .filter((f) => f.length > 0)
+    .concat([
+        c.loss,
+        c.optimizer
+    ].filter((f) => f !== undefined))
+    .join('_');
 }
 
 
@@ -32,12 +38,15 @@ function getModelName(c){
         inputShape:[4],
         outputShape:[1],
         layers:[
-            {type:'dense',activation:'*',units:'1|2|4|8|16|32|64|128'},
-            {type:'dense',activation:'*',units:1}
+            {type:'layerNormalization'},
+            {type:'dense',activation:'linear',units:'8'},
+            {type:'dense',activation:'sigmoid',units:1}
         ],
         optimizer:'adam',
-        loss:'absoluteDifference'
+        loss:'meanSquaredError'
     });
+
+
 
     for(let i = 0; i < gen.length;i++){
         let config = gen.getItem(i);
@@ -45,21 +54,20 @@ function getModelName(c){
         let modelDir = path.join(conf.modelsDir,modelName);
         let outputImage = path.join(conf.outputsDir,modelName+'.jpeg');
         let net = new Network(config);
-        if(fs.existsSync(modelDir)){
-            fs.writeFileSync(outputImage,await generateImage(net));
-            continue;
-        }
+        console.log(`${i+1}/${gen.length} - carregando modelo ${modelName}...`);
         await net.load(modelDir);
-        let data = generateTrainingData(100);
+        let data = generateTrainingData(1000);
         await net.train(data,{
             epochs: epochs,
+           // stponOnLossGrow:true,
             callbacks:{
-                onBatchEnd:function(epoch,epochs,loss,acc){
+                onBatchEnd:async function(epoch,epochs,loss,acc){
                     console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
+                    await net.save(modelDir);
                 }
             }
         });
         await net.save(modelDir);
-        fs.writeFileSync(outputImage,await generateImage(net));
+        fs.writeFileSync(outputImage,await generateImage(net,{width:256,height:256}));
     }
 })();

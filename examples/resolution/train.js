@@ -3,7 +3,7 @@ const path = require('path');
 const tf = require('@tensorflow/tfjs-node-gpu');
 const Network = require('../../Networks/Network');
 const NetworkGenerator = require('../../Networks/NetworkGenerator');
-const epochs = 100;
+const epochs = 1000;
 const config = require('./config');
 const sort = require('./sort');
 const examples = 1000;
@@ -67,9 +67,7 @@ async function train(source,target,layers){
                     f,
                     path.join(targetDir,path.basename(f))
                 ];
-            })
-            .sort(() => Math.random() - 0.5)
-            .slice(0,examples);
+            });
 
         let dataset = tf.data.array(data).map(function(e){
             return {
@@ -80,16 +78,18 @@ async function train(source,target,layers){
       
         await net.train(dataset,{
             epochs: epochs,
-           // stopOnLossGrow:true,
+            stopOnLossGrow:true,
             callbacks:{
-                onBatchEnd:function(epoch,epochs,loss,acc){
+                onBatchEnd:async function(epoch,epochs,loss,acc){
                     console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
+                    await net.save(modelDir);
+                    await sort(source,target);
                 }
             }
         });
 
         await net.save(modelDir);
-        // await sort(source,target);
+        await sort(source,target);
     }
 }
 

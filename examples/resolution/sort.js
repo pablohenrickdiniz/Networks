@@ -3,6 +3,7 @@ const path = require('path');
 const config = require('./config');
 const Network = require('../../Networks/Network');
 const predict = require('./predict');
+let examples = 10;
 
 module.exports = async function(source,target){
     let modelStart = source.join('x')+'_'+target.join('x');
@@ -48,6 +49,6 @@ module.exports = async function(source,target){
     // }
  
     for(let i = 0; i < modelDirs.length;i++){
-        await predict(modelDirs[i],source,target,i);
+        await predict(modelDirs[i],source,target,i,examples);
     }
 };

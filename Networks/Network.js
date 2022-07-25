@@ -77,7 +77,7 @@ function initialize(self,options){
                 options.callbacks.constructor === {}.constructor &&
                 options.callbacks.onBatchEnd
             ){
-                options.callbacks.onBatchEnd(i+1,epochs,avgLoss,acc);
+                await options.callbacks.onBatchEnd(i+1,epochs,avgLoss,acc);
             }
             ds = null;
             res = null;
@@ -94,7 +94,7 @@ function initialize(self,options){
             options.callbacks.constructor === {}.constructor &&
             options.callbacks.onTrainEnd
         ){
-            options.callbacks.onTrainEnd(avgLoss,acc);
+            await options.callbacks.onTrainEnd(avgLoss,acc);
         }
 
         metrics = {
