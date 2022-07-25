@@ -1,0 +1,41 @@
+{
+    "inputShape": [
+        32,
+        32,
+        4
+    ],
+    "outputShape": [
+        64,
+        64,
+        4
+    ],
+    "layers": [
+        {
+            "type": "conv2d",
+            "activation": "relu",
+            "filters": 512
+        },
+        {
+            "type": "upSampling2d",
+            "activation": "linear",
+            "size": [
+                2,
+                2
+            ]
+        },
+        {
+            "type": "conv2d",
+            "activation": "relu",
+            "filters": 4
+        },
+        {
+            "type": "dropout",
+            "activation": "linear"
+        }
+    ],
+    "type": "generic",
+    "loss": "absoluteDifference",
+    "optimizer": "adam",
+    "learningRate": 0.01,
+    "metrics": null
+}
