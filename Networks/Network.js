@@ -25,7 +25,8 @@ function initialize(self,options){
         options = options || {};
         let epochs = options.epochs || 1;
         let stopOnLossGrow = options.stopOnLossGrow || false;
-        let dataset;
+        let dataset = null;
+        let disposeDataset = false;
         if(data instanceof tf.data.Dataset){
             dataset = data;
         }
@@ -42,16 +43,26 @@ function initialize(self,options){
                     ys:output
                 };
             });
+            disposeDataset = true;
         }
         
-        let loss, avgLoss = null, oAvgLoss = null, acc, ds,res;
+        let loss, avgLoss = null, oAvgLoss = null, acc;
         let totalLoss = 0;
+        let callbacks = options.callbacks?options.callbacks:{};
 
         for(let i = 0; i < epochs;i++){
-            res = await self.model.fitDataset(dataset.batch(batchSize),{
+            let ds = dataset.batch(batchSize);
+
+            if(callbacks.onEpochBegin){
+                await callbacks.onEpochBegin(i+1,epochs,avgLoss,acc);
+            }
+
+            res = await self.model.fitDataset(ds,{
                 verbose:0,
                 epochs:1
             });
+            
+            tf.dispose(ds);
             loss = res.history.loss[0];
             acc  = res.history.acc[0]*100;
 
@@ -69,14 +80,9 @@ function initialize(self,options){
             totalLoss += loss;
             avgLoss = totalLoss/(i+1);
             
-            if(
-                options.callbacks.constructor === {}.constructor &&
-                options.callbacks.onBatchEnd
-            ){
-                await options.callbacks.onBatchEnd(i+1,epochs,avgLoss,acc);
+            if(callbacks.onEpochEnd){
+                await callbacks.onEpochEnd(i+1,epochs,avgLoss,acc);
             }
-            ds = null;
-            res = null;
 
             if(stopOnLossGrow && oAvgLoss !== null && avgLoss >= oAvgLoss){
                 break;
@@ -86,18 +92,18 @@ function initialize(self,options){
             oAvgLoss = avgLoss;
         }
 
-        if(
-            options.callbacks.constructor === {}.constructor &&
-            options.callbacks.onTrainEnd
-        ){
-            await options.callbacks.onTrainEnd(avgLoss,acc);
+        if(disposeDataset){
+            tf.dispose(dataset);
+        }
+
+        if(callbacks.onTrainEnd){
+            await callbacks.onTrainEnd(avgLoss,acc);
         }
 
         metrics = {
             loss: avgLoss,
             acc: acc
         };
-        tf.dispose(dataset);
     };
 
     let predict = function(input){

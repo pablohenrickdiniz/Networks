@@ -75,12 +75,12 @@ async function train(source,target,layers){
                 ys: tf.node.decodeImage(fs.readFileSync(e[1]),4)
             };
         });
-      
+       
         await net.train(dataset,{
             epochs: epochs,
             stopOnLossGrow:true,
             callbacks:{
-                onBatchEnd:async function(epoch,epochs,loss,acc){
+                onEpochEnd:async function(epoch,epochs,loss,acc){
                     console.log(`${epoch}/${epochs} loss:${loss}, accuracy:${acc}`);
                     await net.save(modelDir);
                     await sort(source,target);
@@ -88,6 +88,7 @@ async function train(source,target,layers){
             }
         });
 
+        tf.dispose(dataset);
         await net.save(modelDir);
         await sort(source,target);
     }

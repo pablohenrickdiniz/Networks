@@ -54,6 +54,8 @@ module.exports = async function(modelDir,source,target,index,examples){
         height = parseInt(height);
         let input = tf.node.decodeImage(await sharpImage.resize(source[0],source[1],{fit:'fill'}).ensureAlpha().toBuffer(),4).expandDims();
         let predict = net.predict(input).squeeze();
+        tf.dispose(input);
         await (await sharp(await tf.node.encodePng(predict))).resize(width,height,{fit:'fill'}).toFile(outputImage);
+        tf.dispose(predict);
     }
 };
