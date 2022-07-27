@@ -7,13 +7,7 @@ const predict_model = require('./predict_model');
 
 async function extract(img,left,top,width,height){
     let buffer = await img.extract({left:left,top:top,width:width,height:height}).toBuffer();
-    return sharp(buffer,{
-        raw:{
-            width:width,
-            height:height,
-            channels:4
-        }
-    });
+    return sharp(buffer);
 }
 
 async function enchance(img,model){
@@ -24,20 +18,17 @@ async function enchance(img,model){
     
     let [modelHeight,modelWidth] = inputShape;
     let imageWidth = meta.width, imageHeight = meta.height;
-   
+  
     if(imageWidth > modelWidth || imageHeight > modelHeight){
         let hw = Math.floor(imageWidth/2);
         let hh = Math.floor(imageHeight/2);
-      
+     
         let topLeft = await enchance(await extract(img,0,0,hw,hh),model);
-
-
-        process.exit();
         let topRight = await enchance(await extract(img,hw,0,hw,hh),model);
         let bottomRight = await enchance(await extract(img,hw,hh,hw,hh),model);
         let bottomLeft =  await enchance(await extract(img,0,hh,hw,hh),model);
       
-      
+
         img = sharp().composite([
             {input: topLeft, top: 0, left: 0},
             {input: topRight, top: 0, left: hw},

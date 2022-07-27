@@ -36,13 +36,7 @@ function extract(img, left, top, width, height) {
 
         case 2:
           buffer = _context.sent;
-          return _context.abrupt("return", sharp(buffer, {
-            raw: {
-              width: width,
-              height: height,
-              channels: 4
-            }
-          }));
+          return _context.abrupt("return", sharp(buffer));
 
         case 4:
         case "end":
@@ -69,7 +63,7 @@ function enchance(img, model) {
           imageWidth = meta.width, imageHeight = meta.height;
 
           if (!(imageWidth > modelWidth || imageHeight > modelHeight)) {
-            _context2.next = 51;
+            _context2.next = 50;
             break;
           }
 
@@ -89,48 +83,47 @@ function enchance(img, model) {
 
         case 18:
           topLeft = _context2.sent;
-          process.exit();
           _context2.t5 = regeneratorRuntime;
           _context2.t6 = enchance;
-          _context2.next = 24;
+          _context2.next = 23;
           return regeneratorRuntime.awrap(extract(img, hw, 0, hw, hh));
 
-        case 24:
+        case 23:
           _context2.t7 = _context2.sent;
           _context2.t8 = model;
           _context2.t9 = (0, _context2.t6)(_context2.t7, _context2.t8);
-          _context2.next = 29;
+          _context2.next = 28;
           return _context2.t5.awrap.call(_context2.t5, _context2.t9);
 
-        case 29:
+        case 28:
           topRight = _context2.sent;
           _context2.t10 = regeneratorRuntime;
           _context2.t11 = enchance;
-          _context2.next = 34;
+          _context2.next = 33;
           return regeneratorRuntime.awrap(extract(img, hw, hh, hw, hh));
 
-        case 34:
+        case 33:
           _context2.t12 = _context2.sent;
           _context2.t13 = model;
           _context2.t14 = (0, _context2.t11)(_context2.t12, _context2.t13);
-          _context2.next = 39;
+          _context2.next = 38;
           return _context2.t10.awrap.call(_context2.t10, _context2.t14);
 
-        case 39:
+        case 38:
           bottomRight = _context2.sent;
           _context2.t15 = regeneratorRuntime;
           _context2.t16 = enchance;
-          _context2.next = 44;
+          _context2.next = 43;
           return regeneratorRuntime.awrap(extract(img, 0, hh, hw, hh));
 
-        case 44:
+        case 43:
           _context2.t17 = _context2.sent;
           _context2.t18 = model;
           _context2.t19 = (0, _context2.t16)(_context2.t17, _context2.t18);
-          _context2.next = 49;
+          _context2.next = 48;
           return _context2.t15.awrap.call(_context2.t15, _context2.t19);
 
-        case 49:
+        case 48:
           bottomLeft = _context2.sent;
           img = sharp().composite([{
             input: topLeft,
@@ -150,14 +143,14 @@ function enchance(img, model) {
             left: 0
           }]).png().ensureAlpha();
 
-        case 51:
-          _context2.next = 53;
+        case 50:
+          _context2.next = 52;
           return regeneratorRuntime.awrap(predict_model(img, model));
 
-        case 53:
+        case 52:
           return _context2.abrupt("return", _context2.sent);
 
-        case 54:
+        case 53:
         case "end":
           return _context2.stop();
       }
