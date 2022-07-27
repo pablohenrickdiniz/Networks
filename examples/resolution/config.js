@@ -87,5 +87,6 @@ module.exports = {
     imagesDir:'/content/drive/MyDrive/ia-projects/resolution/images',
     resolutionsDir:'/content/drive/MyDrive/ia-projects/resolution/resolutions',
     modelsDir:'/content/drive/MyDrive/ia-projects/resolution/models',
-    outputsDir:'/content/drive/MyDrive/ia-projects/resolution/outputs'
+    outputsDir:'/content/drive/MyDrive/ia-projects/resolution/outputs',
+    enchanceDir:'/content/drive/MyDrive/ia-projects/resolution/enchance'
 };

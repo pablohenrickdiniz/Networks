@@ -249,6 +249,12 @@ function initialize(self,options){
             return load;
         } 
     });
+
+    Object.defineProperty(self,'toJSON',{
+        get:function(){
+            return self.options;
+        }
+    });
 }
 
 module.exports = Network;

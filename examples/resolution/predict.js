@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const Network = require('../../Networks/Network');
 const sharp = require('sharp');
-const tf = require('@tensorflow/tfjs-node');
 const config = require('./config');
+const predict_model = require('./predict_model');
 
 module.exports = async function(modelDir,source,target,index,examples){
     index = index || '';
@@ -28,34 +28,7 @@ module.exports = async function(modelDir,source,target,index,examples){
         let inputImage = images[i];
         let outputImage = path.join(outputDir,String(index).padStart(6,'0')+'_'+path.basename(modelDir)+path.basename(inputImage));
         let sharpImage = await sharp(inputImage);
-        if(sharpImage === null){
-            continue;
-        }
-        let meta = await sharpImage.metadata();
-
-        let width = meta.width;
-        let height = meta.height;
-      
-        if(height > width){
-            let p = width/height;
-            height = Math.max(height,target[1]);
-            width = height*p;
-        }
-        else if(height < width){
-            let p = height/width;
-            width = Math.max(width,target[0]);
-            height = width*p;
-        }
-        else{
-            width = height = Math.max(width,target[0]);
-        }
-
-        width = parseInt(width);
-        height = parseInt(height);
-        let input = tf.node.decodeImage(await sharpImage.resize(source[0],source[1],{fit:'fill'}).ensureAlpha().toBuffer(),4).expandDims();
-        let predict = net.predict(input).squeeze();
-        tf.dispose(input);
-        await (await sharp(await tf.node.encodePng(predict))).resize(width,height,{fit:'fill'}).toFile(outputImage);
-        tf.dispose(predict);
+        let output = await predict_model(sharpImage,net);
+        await output.toFile(outputImage)
     }
 };
