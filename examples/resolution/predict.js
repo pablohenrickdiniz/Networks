@@ -4,6 +4,7 @@ const Network = require('../../Networks/Network');
 const sharp = require('sharp');
 const config = require('./config');
 const predict_model = require('./predict_model');
+const read = require('../../helpers/read-images');
 
 module.exports = async function(modelDir,source,target,index,examples){
     index = index || '';
@@ -20,7 +21,7 @@ module.exports = async function(modelDir,source,target,index,examples){
     
     let net = new Network();
     await net.load(modelDir);
-    let images = fs.readdirSync(sourceDir).map((f) => path.join(sourceDir,f));
+    let images = read(sourceDir);
     if(examples !== undefined){
         images  = images.slice(0,examples);
     }

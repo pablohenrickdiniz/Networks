@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 const config = require('./config');
-const prepare = require('../../helpers/prepare');
-const tmp = require('tmp');
+const prepare = require('../../helpers/prepare-image');
+const read = require('../../helpers/read-images');
 
 async function generateResolution(image,resolution){
     if(!fs.existsSync(config.resolutionsDir)){
@@ -42,10 +42,7 @@ async function generateResolution(image,resolution){
 }
 
 (async function(){
-    if(!fs.existsSync(config.imagesDir)){
-        fs.mkdirSync(config.imagesDir,{recursive:true});
-    }
-    let images = fs.readdirSync(config.imagesDir).map((f) => path.join(config.imagesDir,f));
+    let images = read(config.imagesDir);
     let total = images.length*config.resolutions.length;
     let count = 0;
     let oldp, p;

@@ -4,14 +4,9 @@ const path = require('path');
 const Network = require('../../Networks/Network');
 const sharp = require('sharp');
 const predict_model = require('./predict_model');
-const prepare = require('../../helpers/prepare');
-
-
-async function extract(img,left,top,width,height){
-    return await prepare(
-        img.clone().extract({left:left,top:top,width:width,height:height})
-    );
-}
+const prepare = require('../../helpers/prepare-image');
+const extract = require('../../helpers/extract-image');
+const read = require('../../helpers/read-images');
 
 async function enchance(img,model,imageWidth,imageHeight){
     let inputShape = model.options.inputShape;
@@ -67,20 +62,7 @@ async function enchance(img,model,imageWidth,imageHeight){
         models.push(model);
     }
 
-    let images = fs
-        .readdirSync(config.enchanceDir)
-        .map((img) => path.join(config.enchanceDir,img))
-        .filter(function(img){
-            try{
-                sharp(img);
-                return true;
-            }
-            catch(e){
-
-            }
-            return false;
-        });
-
+    let images = read(config.enchanceDir);
     for(let i = 0; i < images.length;i++){
         let img = images[i];
         for(let j = 0; j < models.length;j++){
