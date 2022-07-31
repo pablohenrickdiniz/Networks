@@ -54,26 +54,28 @@ function base(url){
     let downloaded = existingFiles.length;
     while(downloaded < total){
         let page =  Math.floor(Math.random()*10);
-        let images = (await pixabay({
+        // let images = (await pixabay({
+        //         page: page,
+        //         per_page: 50
+        //     }))
+        //     .map((img) => img.largeImageURL)
+        //     .filter(function(url){
+        //         return existingFiles.indexOf(path.basename(url)) === -1;
+        //     });
+
+        let images = [];
+
+        page =  Math.floor(Math.random()*10000);
+            images = images.concat((await pexels({
                 page: page,
                 per_page: 50
             }))
-            .map((img) => img.largeImageURL)
+            .map(function(img){
+                return img.src.large2x;
+            })
             .filter(function(url){
-                return existingFiles.indexOf(path.basename(url)) === -1;
-            });
-
-
-            // images = images.concat((await pexels({
-            //     page: page,
-            //     per_page: 50
-            // }))
-            // .map(function(img){
-            //     return img.src.large2x;
-            // })
-            // .filter(function(url){
-            //     return existingFiles.indexOf(base(url)) === -1;
-            // }));
+                return existingFiles.indexOf(base(url)) === -1;
+            }));
        
         images = images.sort(() => Math.random() - 0.5);
         downloaded += (await downloadImages(images,downloaded+1));

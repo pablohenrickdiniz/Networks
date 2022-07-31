@@ -1,8 +1,9 @@
-const tf = require('@tensorflow/tfjs-node');
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 const config = require('./config');
+const prepare = require('../../helpers/prepare');
+const tmp = require('tmp');
 
 async function generateResolution(image,resolution){
     if(!fs.existsSync(config.resolutionsDir)){
@@ -14,17 +15,25 @@ async function generateResolution(image,resolution){
     if(!fs.existsSync(resolutionDir)){
         fs.mkdirSync(resolutionDir,{recursive:true});
     }
-    let parsed = path.parse(image);
-    let filename = path.join(resolutionDir,parsed.name+'.png');
-
-    if(fs.existsSync(filename)){
-        return;
-    }
-    
+  
     try{
+        let parsed = path.parse(image);
         let sharpImage = await sharp(image);
         if(sharpImage !== null){
-            await sharpImage.png().ensureAlpha().resize(resolution[0],resolution[1]).toFile(filename);
+            let meta = await sharpImage.metadata();
+            if(meta.width >= resolution[0] && meta.height >= resolution[1]){
+                let index = 0;
+                for(let left = 0; left < meta.width - resolution[0]; left += resolution[0]){
+                    for(let top = 0; top < meta.height - resolution[1]; top += resolution[1]){
+                        let filename = path.join(resolutionDir,parsed.name+String(index)+'.png');
+                        index++;
+                        if(fs.existsSync(filename)){
+                            continue;
+                        }
+                        (await prepare(sharpImage.extract({left:0, top: 0,width: resolution[0], height: resolution[1]}))).toFile(filename);
+                    }
+                }
+            }
         }
     }
     catch(e){

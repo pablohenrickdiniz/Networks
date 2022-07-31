@@ -1,5 +1,6 @@
 const tf = require('@tensorflow/tfjs-node');
 const sharp = require('sharp');
+const prepare = require('../../helpers/prepare');
 
 module.exports = async function(image,model){
     let [modelHeight, modelWidth] = model.options.inputShape;
@@ -21,7 +22,9 @@ module.exports = async function(image,model){
     // }
     // width = parseInt(width);
     // height = parseInt(height);
-    let input = tf.node.decodeImage(await  image.resize(modelHeight,modelWidth,{fit:'fill'}).ensureAlpha().toBuffer(),4).expandDims();
+    let resizedBuffer = await (await prepare(image.resize(modelHeight,modelWidth,{fit:'fill'}))).toBuffer();
+    let input = tf.node.decodeImage(resizedBuffer,4).expandDims();
     let predict = model.predict(input).squeeze();
-    return sharp(await tf.node.encodePng(predict)).resize(width,height,{fit:'fill'});
+    let outputBuffer = await tf.node.encodePng(predict);
+    return await prepare(sharp(outputBuffer).resize(width,height,{fit:'fill'}));
 };
